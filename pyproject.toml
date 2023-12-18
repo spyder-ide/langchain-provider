@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.2.0", "setuptools_scm[toml]>=3.4.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kite-provider"
+version = "0.2.0"
+description = "Kite completions provider for Spyder"
+authors = [
+    {name = "Spyder Project Contributors", email = "spyder.python@gmail.com"},
+]
+license = {text = "MIT license"}
+dependencies = ["psutil", "qtawesome", "qtpy", "spyder>=6.0.0a3"]
+requires-python = ">= 3.8"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 7 - Inactive",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Editors :: Integrated Development Environments (IDE)",
+]
+
+[project.urls]
+Homepage = "https://github.com/spyder-ide/kite-provider"
+
+[project.entry-points."spyder.completions"]
+kite = "kite_provider.provider:KiteProvider"
+
+[tool.setuptools]
+packages = ["kite_provider"]
+py-modules = ["__init__"]
+license-files = ["LICENSE"]
+include-package-data = false

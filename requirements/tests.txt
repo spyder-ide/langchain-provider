@@ -1,0 +1,6 @@
+pytest <7.0
+pytest-cov
+pytest-mock
+pytest-qt
+codecov
+flaky
