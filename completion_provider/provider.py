@@ -32,8 +32,8 @@ from spyder.utils.programs import run_program
 logger = logging.getLogger(__name__)
 
 
-class KiteProvider(SpyderCompletionProvider):
-    COMPLETION_PROVIDER_NAME = 'kite'
+class CompletionProvider(SpyderCompletionProvider):
+    COMPLETION_PROVIDER_NAME = 'langchain'
     DEFAULT_ORDER = 1
     SLOW = True
     CONF_DEFAULTS = [
