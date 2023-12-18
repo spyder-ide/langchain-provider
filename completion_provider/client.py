@@ -19,11 +19,11 @@ from spyder.py3compat import TEXT_TYPES
 
 
 # Local imports
-from kite_provider import KITE_ENDPOINTS, KITE_REQUEST_MAPPING
-from kite_provider.decorators import class_register
-from kite_provider.providers import (
+from completion_provider import KITE_ENDPOINTS, KITE_REQUEST_MAPPING
+from completion_provider.decorators import class_register
+from completion_provider.providers import (
     KiteMethodProviderMixIn)
-from kite_provider.utils.status import status
+from completion_provider.utils.status import status
 
 
 logger = logging.getLogger(__name__)

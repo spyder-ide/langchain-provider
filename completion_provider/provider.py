@@ -16,10 +16,10 @@ from qtpy.QtCore import Slot
 from qtpy.QtWidgets import QMessageBox
 
 # Local imports
-from kite_provider.client import KiteClient
-from kite_provider.utils.status import (
+from completion_provider.client import KiteClient
+from completion_provider.utils.status import (
     check_if_kite_running, check_if_kite_installed)
-from kite_provider.widgets import (KiteStatusWidget)
+from completion_provider.widgets import (KiteStatusWidget)
 
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
