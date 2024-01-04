@@ -3,7 +3,7 @@
 # Copyright © Spyder Project Contributors
 # Licensed under the terms of the MIT License
 
-"""Kite document requests handlers and senders."""
+"""Lang document requests handlers and senders."""
 
 from collections import defaultdict
 import logging
@@ -19,8 +19,8 @@ from spyder.plugins.completion.api import (
     CompletionRequestTypes, CompletionItemKind)
 
 
-# Kite can return e.g. "int | str", so we make the default hint VALUE.
-KITE_DOCUMENT_TYPES = defaultdict(lambda: CompletionItemKind.VALUE, {
+# Lang can return e.g. "int | str", so we make the default hint VALUE.
+LANG_DOCUMENT_TYPES = defaultdict(lambda: CompletionItemKind.VALUE, {
     'function': CompletionItemKind.FUNCTION,
     'type': CompletionItemKind.CLASS,
     'module': CompletionItemKind.MODULE,
@@ -31,8 +31,8 @@ KITE_DOCUMENT_TYPES = defaultdict(lambda: CompletionItemKind.VALUE, {
     'call': CompletionItemKind.FUNCTION,
 })
 
-KITE_COMPLETION = 'Kite'
-KITE_ICON_SCALE = (416.14 / 526.8)
+LANG_COMPLETION = 'Lang'
+LANG_ICON_SCALE = (416.14 / 526.8)
 
 logger = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ class DocumentProvider:
         if completions is not None:
             for i, completion in enumerate(completions):
                 entry = {
-                    'kind': KITE_DOCUMENT_TYPES.get(
+                    'kind': LANG_DOCUMENT_TYPES.get(
                         completion['hint'], CompletionItemKind.TEXT),
                     'label': completion['display'],
                     'textEdit': {
@@ -160,15 +160,15 @@ class DocumentProvider:
                     # Use the returned ordering
                     'sortText': (i, 0),
                     'documentation': completion['documentation']['text'],
-                    'provider': KITE_COMPLETION,
-                    'icon': ('kite', KITE_ICON_SCALE)
+                    'provider': LANG_COMPLETION,
+                    'icon': ('lang', LANG_ICON_SCALE)
                 }
                 spyder_completions.append(entry)
 
                 if 'children' in completion:
                     for j, child in enumerate(completion['children']):
                         child_entry = {
-                            'kind': KITE_DOCUMENT_TYPES.get(
+                            'kind': LANG_DOCUMENT_TYPES.get(
                                 child['hint'], CompletionItemKind.TEXT),
                             'label': ' '*2 + child['display'],
                             'textEdit': {
@@ -185,8 +185,8 @@ class DocumentProvider:
                             # Use the returned ordering
                             'sortText': (i, j+1),
                             'documentation': child['documentation']['text'],
-                            'provider': KITE_COMPLETION,
-                            'icon': ('kite', KITE_ICON_SCALE)
+                            'provider': LANG_COMPLETION,
+                            'icon': ('lang', LANG_ICON_SCALE)
                         }
                         spyder_completions.append(child_entry)
 
@@ -276,6 +276,6 @@ class DocumentProvider:
                     'signatures': base_signature,
                     'activeSignature': 0,
                     'activeParameter': arg_idx,
-                    'provider': KITE_COMPLETION
+                    'provider': LANG_COMPLETION
                 }
         return {'params': params}

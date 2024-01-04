@@ -22,7 +22,7 @@ from spyder.py3compat import TEXT_TYPES
 from completion_provider import KITE_ENDPOINTS, KITE_REQUEST_MAPPING
 from completion_provider.decorators import class_register
 from completion_provider.providers import (
-    KiteMethodProviderMixIn)
+    LangMethodProviderMixIn)
 from completion_provider.utils.status import status
 
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 @class_register
-class KiteClient(QObject, KiteMethodProviderMixIn):
+class LangClient(QObject, LangMethodProviderMixIn):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal(list)
     sig_client_not_responding = Signal()

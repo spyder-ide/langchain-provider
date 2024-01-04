@@ -74,7 +74,7 @@ class CompletionProvider(SpyderCompletionProvider):
 
     # ------------------ SpyderCompletionProvider methods ---------------------
     def get_name(self):
-        return 'Kite'
+        return 'LangChain'
 
     def send_request(self, language, req_type, req, req_id):
         if language in self.available_languages:
