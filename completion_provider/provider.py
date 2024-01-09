@@ -16,7 +16,7 @@ from qtpy.QtCore import Slot
 from qtpy.QtWidgets import QMessageBox
 
 # Local imports
-from completion_provider.client import KiteClient
+from completion_provider.client import LangchainClient
 from completion_provider.utils.status import (
     check_if_kite_running, check_if_kite_installed)
 from completion_provider.widgets import (KiteStatusWidget)
@@ -44,7 +44,7 @@ class CompletionProvider(SpyderCompletionProvider):
             get_module_data_path('langchain', relpath='images')
         )
         self.available_languages = []
-        self.client = KiteClient(None)
+        self.client = LangchainClient(None)
         self.kite_process = None
 
         # Signals

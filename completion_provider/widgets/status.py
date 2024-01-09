@@ -22,22 +22,21 @@ from completion_provider.utils.status import (
 logger = logging.getLogger(__name__)
 
 
-class KiteStatusWidget(StatusBarWidget):
-    """Status bar widget for Kite completions status."""
-    BASE_TOOLTIP = _("Kite completions status")
+class LangchainStatusWidget(StatusBarWidget):
+    """Status bar widget for LangChain completions status."""
+    BASE_TOOLTIP = _("LangChain completions status")
     DEFAULT_STATUS = _('not reachable')
-    ID = 'kite_status'
+    ID = 'langchain_status'
 
     def __init__(self, parent, provider):
         self.provider = provider
         self.tooltip = self.BASE_TOOLTIP
         super().__init__(parent)
-        is_installed, _ = check_if_kite_installed()
-        self.setVisible(is_installed)
+        self.setVisible(True)
 
     def set_value(self, value):
-        """Return Kite completions state."""
-        kite_enabled = self.provider.get_conf(('enabled_providers', 'kite'),
+        """Return Langchain completions state."""
+        langchain_enabled = self.provider.get_conf(('enabled_providers', 'langchain'),
                                               default=True,
                                               section='completions')
 
@@ -52,9 +51,9 @@ class KiteStatusWidget(StatusBarWidget):
             value = self.DEFAULT_STATUS
             self.tooltip = self.BASE_TOOLTIP
         self.update_tooltip()
-        self.setVisible(value != NOT_INSTALLED and kite_enabled)
-        value = "Kite: {0}".format(value)
-        super(KiteStatusWidget, self).set_value(value)
+        self.setVisible(langchain_enabled)
+        value = "KiteChain: {0}".format(value)
+        super(LangchainStatusWidget, self).set_value(value)
 
     def get_tooltip(self):
         """Reimplementation to get a dynamic tooltip."""

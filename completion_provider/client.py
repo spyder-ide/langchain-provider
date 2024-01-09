@@ -10,8 +10,14 @@ import logging
 from urllib.parse import quote
 
 # Third party imports
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import LLMChain
+from langchain.prompts.chat import (
+            ChatPromptTemplate,
+            SystemMessagePromptTemplate,
+            HumanMessagePromptTemplate,
+        )
 from qtpy.QtCore import QObject, QThread, Signal, QMutex
-import requests
 
 # Spyder imports
 from spyder.config.base import _, running_under_pytest
@@ -30,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 @class_register
-class LangClient(QObject, LangMethodProviderMixIn):
+class LangchainClient(QObject, LangMethodProviderMixIn):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal(list)
     sig_client_not_responding = Signal()
@@ -41,11 +47,11 @@ class LangClient(QObject, LangMethodProviderMixIn):
     sig_onboarding_response_ready = Signal(str)
     sig_client_wrong_response = Signal(str, object)
 
-    def __init__(self, parent, enable_code_snippets=True):
+    def __init__(self, parent, template, model_name, enable_code_snippets=True,language='python'):
         QObject.__init__(self, parent)
         self.endpoint = None
         self.requests = {}
-        self.languages = []
+        self.language = language
         self.mutex = QMutex()
         self.opened_files = {}
         self.opened_files_status = {}
@@ -58,19 +64,21 @@ class LangClient(QObject, LangMethodProviderMixIn):
         self.sig_perform_status_request.connect(self.get_status)
         self.sig_perform_onboarding_request.connect(self.get_onboarding_file)
 
-    def start(self, template, model_name):
+        self.template=template
+        self.model_name=model_name
+
+    def start(self):
         if not self.thread_started:
             self.thread.start()
         logger.debug('Starting LangChain session...')
-        system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+        system_message_prompt = SystemMessagePromptTemplate.from_template(self.template)
         code_template = "{text}"
         code_message_prompt = HumanMessagePromptTemplate.from_template(code_template)
-        llm=ChatOpenAI(temperature=0,model_name="gpt-3.5-turbo",openai_api_key=apiKey)
+        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=apiKey)
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
         chain = LLMChain(
             llm=llm,
             prompt=chat_prompt,
-            #verbose=True
             )
         self.sig_client_started.emit()
 
