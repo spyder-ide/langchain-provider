@@ -58,45 +58,31 @@ class LangClient(QObject, LangMethodProviderMixIn):
         self.sig_perform_status_request.connect(self.get_status)
         self.sig_perform_onboarding_request.connect(self.get_onboarding_file)
 
-    def start(self):
+    def start(self, template, model_name):
         if not self.thread_started:
             self.thread.start()
-        logger.debug('Starting Kite HTTP session...')
-        self.endpoint = requests.Session()
-        self.languages = self.get_languages()
-        self.sig_client_started.emit(self.languages)
+        logger.debug('Starting LangChain session...')
+        system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+        code_template = "{text}"
+        code_message_prompt = HumanMessagePromptTemplate.from_template(code_template)
+        llm=ChatOpenAI(temperature=0,model_name="gpt-3.5-turbo",openai_api_key=apiKey)
+        chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
+        chain = LLMChain(
+            llm=llm,
+            prompt=chat_prompt,
+            #verbose=True
+            )
+        self.sig_client_started.emit()
 
     def started(self):
         self.thread_started = True
 
     def stop(self):
         if self.thread_started:
-            logger.debug('Closing Kite HTTP session...')
-            self.endpoint.close()
+            logger.debug('Closing LangChain session...')
             self.thread.quit()
             self.thread.wait()
             self.thread_started = False
-
-    def get_languages(self):
-        verb, url = KITE_ENDPOINTS.LANGUAGES_ENDPOINT
-        success, response = self.perform_http_request(verb, url)
-        if not success:
-            return []
-
-        if response is None or isinstance(response, TEXT_TYPES):
-            response = ['python']
-        return response
-
-    def _get_onboarding_file(self):
-        """Perform a request to get kite's onboarding file."""
-        verb, url = KITE_ENDPOINTS.ONBOARDING_ENDPOINT
-        success, response = self.perform_http_request(verb, url)
-        return response
-
-    def get_onboarding_file(self):
-        """Get onboarding file."""
-        onboarding_file = self._get_onboarding_file()
-        self.sig_onboarding_response_ready.emit(onboarding_file)
 
     def _get_status(self, filename):
         """Perform a request to get kite status for a file."""
@@ -110,7 +96,7 @@ class LangClient(QObject, LangMethodProviderMixIn):
         return success, response
 
     def get_status(self, filename):
-        """Get kite status for a given filename."""
+        """Get langchain status for a given filename."""
         success_status, kite_status = self._get_status(filename)
         if not filename or kite_status is None:
             kite_status = status()

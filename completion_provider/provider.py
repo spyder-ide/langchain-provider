@@ -36,16 +36,12 @@ class CompletionProvider(SpyderCompletionProvider):
     COMPLETION_PROVIDER_NAME = 'langchain'
     DEFAULT_ORDER = 1
     SLOW = True
-    CONF_DEFAULTS = [
-        ('show_onboarding', True),
-        ('show_installation_error_message', True)
-    ]
     CONF_VERSION = "1.0.0"
 
     def __init__(self, parent, config):
         super().__init__(parent, config)
         IMAGE_PATH_MANAGER.add_image_path(
-            get_module_data_path('kite_provider', relpath='images')
+            get_module_data_path('langchain', relpath='images')
         )
         self.available_languages = []
         self.client = KiteClient(None)
@@ -134,11 +130,9 @@ class CompletionProvider(SpyderCompletionProvider):
             self._show_onboarding_file)
 
     @Slot(list)
-    def http_client_ready(self, languages):
-        logger.debug('Kite client is available for {0}'.format(languages))
-        self.available_languages = languages
+    def http_client_ready(self):
+        logger.debug('Lang client is available')
         self.sig_provider_ready.emit(self.COMPLETION_PROVIDER_NAME)
-        self._kite_onboarding()
 
     @Slot(str)
     @Slot(dict)
@@ -173,49 +167,6 @@ class CompletionProvider(SpyderCompletionProvider):
                 return
 
         self._show_onboarding = self.get_conf('show_onboarding')
-
-    def _kite_onboarding(self):
-        """Request the onboarding file."""
-        # No need to check installed status,
-        # since the get_onboarding_file call fails fast.
-        if not self._show_onboarding:
-            return
-        if not self.available_languages:
-            return
-        # Don't send another request until this request fails.
-        self._show_onboarding = False
-        self.client.sig_perform_onboarding_request.emit()
-
-    @Slot(str)
-    def _show_onboarding_file(self, onboarding_file):
-        """
-        Opens the onboarding file, which is retrieved
-        from the Kite HTTP endpoint. This skips onboarding if onboarding
-        is not possible yet or has already been displayed before.
-        """
-        if not onboarding_file:
-            # retry
-            self._show_onboarding = True
-            return
-        self.sig_open_file.emit(onboarding_file)
-        self.set_conf('show_onboarding', False)
-
-    @Slot(str, object)
-    def _wrong_response_error(self, method, resp):
-        err_msg = _(
-            "The Kite completion engine returned an unexpected result "
-            "for the request <tt>{0}</tt>: <br><br><tt>{1}</tt><br><br>"
-            "Please make sure that your Kite installation is correct. "
-            "In the meantime, Spyder will disable the Kite client to "
-            "prevent further errors. For more information, please "
-            "visit the <a href='https://help.kite.com/'>Kite help "
-            "center</a>").format(method, resp)
-
-        def wrap_message(parent):
-            return QMessageBox.critical(parent, _('Kite error'), err_msg)
-
-        self.sig_show_widget.emit(wrap_message)
-        self.sig_disable_provider.emit(self.COMPLETION_PROVIDER_NAME)
 
     def create_statusbar(self, parent):
         return KiteStatusWidget(parent, self)
