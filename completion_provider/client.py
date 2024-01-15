@@ -17,6 +17,7 @@ from langchain.prompts.chat import (
             SystemMessagePromptTemplate,
             HumanMessagePromptTemplate,
         )
+from langchain_core.output_parsers import JsonOutputParser
 from qtpy.QtCore import QObject, QThread, Signal, QMutex
 
 # Spyder imports
@@ -25,7 +26,7 @@ from spyder.py3compat import TEXT_TYPES
 
 
 # Local imports
-from completion_provider import KITE_ENDPOINTS, KITE_REQUEST_MAPPING
+from completion_provider import LangchainResponse
 from completion_provider.decorators import class_register
 from completion_provider.providers import (
     LangMethodProviderMixIn)
@@ -47,7 +48,7 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
     sig_onboarding_response_ready = Signal(str)
     sig_client_wrong_response = Signal(str, object)
 
-    def __init__(self, parent, template, model_name, enable_code_snippets=True,language='python'):
+    def __init__(self, parent, template, model_name, apiKey,enable_code_snippets=True,language='python'):
         QObject.__init__(self, parent)
         self.endpoint = None
         self.requests = {}
@@ -66,6 +67,9 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
 
         self.template=template
         self.model_name=model_name
+        self.apiKey=apiKey
+        self.chain=None
+        self.parser = JsonOutputParser(pydantic_object=LangchainResponse)
 
     def start(self):
         if not self.thread_started:
@@ -73,13 +77,16 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
         logger.debug('Starting LangChain session...')
         system_message_prompt = SystemMessagePromptTemplate.from_template(self.template)
         code_template = "{text}"
-        code_message_prompt = HumanMessagePromptTemplate.from_template(code_template)
-        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=apiKey)
+        code_message_prompt = HumanMessagePromptTemplate.from_template(
+            code_template,
+            partial_variables={"format_instructions": self.parser.get_format_instructions()})        
+        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=self.apiKey)
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
         chain = LLMChain(
             llm=llm,
             prompt=chat_prompt,
             )
+        self.chain=chain
         self.sig_client_started.emit()
 
     def started(self):
@@ -91,17 +98,6 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
             self.thread.quit()
             self.thread.wait()
             self.thread_started = False
-
-    def _get_status(self, filename):
-        """Perform a request to get kite status for a file."""
-        verb, url = KITE_ENDPOINTS.STATUS_ENDPOINT
-        if filename:
-            url_params = {'filename': filename}
-        else:
-            url_params = {'filetype': 'python'}
-        success, response = self.perform_http_request(
-            verb, url, url_params=url_params)
-        return success, response
 
     def get_status(self, filename):
         """Get langchain status for a given filename."""
@@ -126,6 +122,7 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
 
     def perform_http_request(self, verb, url, url_params=None, params=None):
         response = None
+        response=self.chain.run('')
         http_method = getattr(self.endpoint, verb)
         try:
             http_response = http_method(url, params=url_params, json=params)
