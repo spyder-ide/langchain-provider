@@ -19,6 +19,7 @@ from langchain.prompts.chat import (
         )
 from langchain_core.output_parsers import JsonOutputParser
 from qtpy.QtCore import QObject, QThread, Signal, QMutex
+import json
 
 # Spyder imports
 from spyder.config.base import _, running_under_pytest
@@ -26,10 +27,8 @@ from spyder.py3compat import TEXT_TYPES
 
 
 # Local imports
-from completion_provider import LangchainResponse
 from completion_provider.decorators import class_register
-from completion_provider.providers import (
-    LangMethodProviderMixIn)
+from completion_provider.providers import LangMethodProviderMixIn
 from completion_provider.utils.status import status
 
 
@@ -121,7 +120,8 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
 
     def run_chain(self, params=None):
         response = None
-        response=self.chain.run(params['text'])
+        mapping_table = str.maketrans({'"': "'", "'": '"'})
+        response=json.loads(self.chain.invoke(params['text'])['text'].translate(mapping_table))
         return response
 
     def send(self, method, params, url_params):

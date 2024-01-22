@@ -73,4 +73,4 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: pytest kite_provider -vv
+        run: pytest completion_provider -vv

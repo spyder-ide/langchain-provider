@@ -3,9 +3,9 @@ requires = ["setuptools>=61.2.0", "setuptools_scm[toml]>=3.4.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kite-provider"
+name = "langchain-provider"
 version = "0.2.0"
-description = "Kite completions provider for Spyder"
+description = "Langchain provider for Spyder"
 authors = [
     {name = "Spyder Project Contributors", email = "spyder.python@gmail.com"},
 ]
@@ -28,13 +28,13 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/spyder-ide/kite-provider"
+Homepage = "https://github.com/jsbautista/spyder-completion-provider"
 
 [project.entry-points."spyder.completions"]
-kite = "kite_provider.provider:KiteProvider"
+langchain = "completion_provider.provider:LangchainProvider"
 
 [tool.setuptools]
-packages = ["kite_provider"]
+packages = ["completion_provider"]
 py-modules = ["__init__"]
 license-files = ["LICENSE"]
 include-package-data = false

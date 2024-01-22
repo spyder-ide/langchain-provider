@@ -12,31 +12,20 @@ from pydantic import BaseModel, Field, validator
 
 LANGCHAIN_COMPLETION = "Langchain"
 
-class LangchainResponse(BaseModel):
-    kind: str = CompletionItemKind.TEXT
-    insertText: str = Field(description="answer to resolve the completion")
-    label: str = Field(description="answer to resolve the completion")
-    sortText: str = Field(description="answer to resolve the completion")
-    filterText: str = Field(description="answer to resolve the completion")
-    provider: str = LANGCHAIN_COMPLETION
-
 
 class _LangchainParams():
-    TEMPLATE_PARAM = """You are a helpful assistant in completing following code based
+    TEMPLATE_PARAM = """You are a helpful assistant in completing following python code based
                   on the previous sentence.
-                  You always complete the code in same line and give 5 suggestions.
+                  You always complete the code in same line and give 4 suggestions.
                   Example : a=3 b=4 print
-                  AI : Suggest ""1. print (a) 2. print(b) 3. print(a+b)""
+                  AI : print(a) print(b) print(a+b)
                   Example : a=3 b=4 c
-                  AI : Suggest ""1. c= a+b 2. c=a-b 3. c=a*b""
+                  AI : c=a+b c=a-b c=5
+                  Please enclose each suggestions in a list with a dict with key suggestions
                   """
     MODEL_NAME_PARAM = "gpt-3.5-turbo"
-    OPENAI_API_KEY_TEMP = "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"
+    OPENAI_API_KEY_TEMP = "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"
 
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)
         return value
-    
-
-LANGCHAIN_PARAMS = _LangchainParams(
-    'LangchainParams', (), {'__doc__': 'Parameters required for lang chain'})
