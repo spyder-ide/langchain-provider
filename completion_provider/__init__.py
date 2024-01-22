@@ -17,7 +17,6 @@ class LangchainResponse(BaseModel):
     insertText: str = Field(description="answer to resolve the completion")
     label: str = Field(description="answer to resolve the completion")
     sortText: str = Field(description="answer to resolve the completion")
-    insertText: str = Field(description="answer to resolve the completion")
     filterText: str = Field(description="answer to resolve the completion")
     provider: str = LANGCHAIN_COMPLETION
 

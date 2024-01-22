@@ -31,37 +31,10 @@ LANG_DOCUMENT_TYPES = defaultdict(lambda: CompletionItemKind.VALUE, {
     'call': CompletionItemKind.FUNCTION,
 })
 
-LANG_COMPLETION = 'Lang'
+LANG_COMPLETION = 'Langchain'
 LANG_ICON_SCALE = (416.14 / 526.8)
 
 logger = logging.getLogger(__name__)
-
-
-def convert_text_snippet(snippet_info):
-    text = snippet_info['text']
-    text_builder = []
-    prev_pos = 0
-    next_pos = None
-    num_placeholders = len(snippet_info['placeholders'])
-    total_placeholders = num_placeholders + 1
-    for i, placeholder in enumerate(snippet_info['placeholders']):
-        placeholder_begin = placeholder['begin']
-        placeholder_end = placeholder['end']
-        next_pos = placeholder_begin
-        standard_text = text[prev_pos:next_pos]
-        snippet_text = text[next_pos:placeholder_end]
-        prev_pos = placeholder['end']
-        text_builder.append(standard_text)
-        placeholder_number = (i + 1) % total_placeholders
-        if snippet_text:
-            snippet = '${%d:%s}' % (placeholder_number, snippet_text)
-        else:
-            snippet = '$%d' % (placeholder_number)
-        text_builder.append(snippet)
-    text_builder.append(text[prev_pos:])
-    if num_placeholders > 0:
-        text_builder.append('$0')
-    return ''.join(text_builder)
 
 
 class DocumentProvider:
@@ -142,53 +115,20 @@ class DocumentProvider:
         if response is None:
             return {'params': []}
         spyder_completions = []
-        completions = response['completions']
+        completions = response['suggestions']
         if completions is not None:
             for i, completion in enumerate(completions):
                 entry = {
-                    'kind': LANG_DOCUMENT_TYPES.get(
-                        completion['hint'], CompletionItemKind.TEXT),
-                    'label': completion['display'],
-                    'textEdit': {
-                        'newText': convert_text_snippet(completion['snippet']),
-                        'range': {
-                            'start': completion['replace']['begin'],
-                            'end': completion['replace']['end'],
-                        },
-                    },
+                    'kind': LANG_DOCUMENT_TYPES.get(CompletionItemKind.TEXT),
+                    'label': completion,
                     'filterText': '',
                     # Use the returned ordering
                     'sortText': (i, 0),
-                    'documentation': completion['documentation']['text'],
+                    'documentation': completion,
                     'provider': LANG_COMPLETION,
-                    'icon': ('lang', LANG_ICON_SCALE)
+                    'icon': ('kite', LANG_ICON_SCALE)
                 }
                 spyder_completions.append(entry)
-
-                if 'children' in completion:
-                    for j, child in enumerate(completion['children']):
-                        child_entry = {
-                            'kind': LANG_DOCUMENT_TYPES.get(
-                                child['hint'], CompletionItemKind.TEXT),
-                            'label': ' '*2 + child['display'],
-                            'textEdit': {
-                                'newText': convert_text_snippet(
-                                    child['snippet']),
-                                'range': {
-                                    'start': child['replace']['begin'],
-                                    'end': child['replace']['end'],
-                                },
-                            },
-                            'insertText': convert_text_snippet(
-                                child['snippet']),
-                            'filterText': '',
-                            # Use the returned ordering
-                            'sortText': (i, j+1),
-                            'documentation': child['documentation']['text'],
-                            'provider': LANG_COMPLETION,
-                            'icon': ('lang', LANG_ICON_SCALE)
-                        }
-                        spyder_completions.append(child_entry)
 
         return {'params': spyder_completions}
 

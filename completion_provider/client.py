@@ -50,7 +50,6 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
 
     def __init__(self, parent, template, model_name, apiKey,enable_code_snippets=True,language='python'):
         QObject.__init__(self, parent)
-        self.endpoint = None
         self.requests = {}
         self.language = language
         self.mutex = QMutex()
@@ -79,7 +78,7 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
         code_template = "{text}"
         code_message_prompt = HumanMessagePromptTemplate.from_template(
             code_template,
-            partial_variables={"format_instructions": self.parser.get_format_instructions()})        
+            )        
         llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=self.apiKey)
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
         chain = LLMChain(
@@ -120,36 +119,14 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
         else:
             self.sig_status_response_ready[dict].emit(kite_status)
 
-    def perform_http_request(self, verb, url, url_params=None, params=None):
+    def run_chain(self, params=None):
         response = None
-        response=self.chain.run('')
-        http_method = getattr(self.endpoint, verb)
-        try:
-            http_response = http_method(url, params=url_params, json=params)
-        except Exception:
-            return False, None
-        success = http_response.status_code == 200
-        if success:
-            try:
-                response = http_response.json()
-            except Exception:
-                response = http_response.text
-                response = None if response == '' else response
-        return success, response
+        response=self.chain.run(params['text'])
+        return response
 
     def send(self, method, params, url_params):
         response = None
-        if self.endpoint is not None and method in KITE_REQUEST_MAPPING:
-            http_verb, path = KITE_REQUEST_MAPPING[method]
-            encoded_url_params = {
-                key: quote(value) if isinstance(value, TEXT_TYPES) else value
-                for (key, value) in url_params.items()}
-            path = path.format(**encoded_url_params)
-            try:
-                success, response = self.perform_http_request(
-                    http_verb, path, params=params)
-            except (ConnectionRefusedError, ConnectionError):
-                return response
+        response = self.run_chain(params=params)
         return response
 
     def perform_request(self, req_id, method, params):
