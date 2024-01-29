@@ -16,10 +16,9 @@ from qtpy.QtCore import Slot
 from qtpy.QtWidgets import QMessageBox
 
 # Local imports
-from completion_provider.client import LangchainClient
-from completion_provider.utils.status import (
-    check_if_kite_running, check_if_kite_installed)
-from completion_provider.widgets import (KiteStatusWidget)
+from langchain_provider import _LangchainParams
+from langchain_provider.client import LangchainClient
+from langchain_provider.widgets import (LangchainStatusWidget)
 
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
@@ -44,7 +43,8 @@ class LangchainProvider(SpyderCompletionProvider):
             get_module_data_path('langchain', relpath='images')
         )
         self.available_languages = []
-        self.client = LangchainClient(None)
+        self.client = LangchainClient(None,model_name=_LangchainParams.MODEL_NAME_PARAM,template=_LangchainParams.TEMPLATE_PARAM,
+                                      apiKey=_LangchainParams.OPENAI_API_KEY_TEMP)
 
         # Signals
         self.client.sig_client_started.connect(
@@ -57,9 +57,6 @@ class LangchainProvider(SpyderCompletionProvider):
         self.client.sig_response_ready.connect(
             functools.partial(self.sig_response_ready.emit,
                               self.COMPLETION_PROVIDER_NAME))
-
-        self.client.sig_client_wrong_response.connect(
-            self._wrong_response_error)
 
         # Status bar widget
         self.STATUS_BAR_CLASSES = [
@@ -94,7 +91,7 @@ class LangchainProvider(SpyderCompletionProvider):
     def set_status(self, status):
         """Show Langchain status for the current file."""
         self.sig_call_statusbar.emit(
-            KiteStatusWidget.ID, 'set_value', (status,), {})
+            LangchainStatusWidget.ID, 'set_value', (status,), {})
 
     def file_opened_closed_or_updated(self, filename, _language):
         """Request status for the given file."""
@@ -104,7 +101,7 @@ class LangchainProvider(SpyderCompletionProvider):
         section='completions', option=('enabled_providers', 'kite'))
     def on_kite_enable_changed(self, value):
         self.sig_call_statusbar.emit(
-            KiteStatusWidget.ID, 'set_value', (None,), {})
+            LangchainStatusWidget.ID, 'set_value', (None,), {})
 
     @on_conf_change(section='completions', option='enable_code_snippets')
     def on_code_snippets_changed(self, value):
@@ -122,4 +119,4 @@ class LangchainProvider(SpyderCompletionProvider):
                 return
 
     def create_statusbar(self, parent):
-        return KiteStatusWidget(parent, self)
+        return LangchainStatusWidget(parent, self)

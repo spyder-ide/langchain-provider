@@ -4,7 +4,7 @@
 # Licensed under the terms of the MIT License
 
 
-from completion_provider.parsing import find_returning_function_path
+from langchain_provider.parsing import find_returning_function_path
 
 
 def test_find_returning_function_path():

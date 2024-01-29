@@ -17,7 +17,6 @@ from langchain.prompts.chat import (
             SystemMessagePromptTemplate,
             HumanMessagePromptTemplate,
         )
-from langchain_core.output_parsers import JsonOutputParser
 from qtpy.QtCore import QObject, QThread, Signal, QMutex
 import json
 
@@ -27,9 +26,9 @@ from spyder.py3compat import TEXT_TYPES
 
 
 # Local imports
-from completion_provider.decorators import class_register
-from completion_provider.providers import LangMethodProviderMixIn
-from completion_provider.utils.status import status
+from langchain_provider.decorators import class_register
+from langchain_provider.providers import LangMethodProviderMixIn
+from langchain_provider.utils.status import status
 
 
 logger = logging.getLogger(__name__)
@@ -38,14 +37,12 @@ logger = logging.getLogger(__name__)
 @class_register
 class LangchainClient(QObject, LangMethodProviderMixIn):
     sig_response_ready = Signal(int, dict)
-    sig_client_started = Signal(list)
+    sig_client_started = Signal()
     sig_client_not_responding = Signal()
     sig_perform_request = Signal(int, str, object)
     sig_perform_status_request = Signal(str)
     sig_status_response_ready = Signal((str,), (dict,))
-    sig_perform_onboarding_request = Signal()
     sig_onboarding_response_ready = Signal(str)
-    sig_client_wrong_response = Signal(str, object)
 
     def __init__(self, parent, template, model_name, apiKey,enable_code_snippets=True,language='python'):
         QObject.__init__(self, parent)
@@ -61,13 +58,11 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
         self.thread.started.connect(self.started)
         self.sig_perform_request.connect(self.perform_request)
         self.sig_perform_status_request.connect(self.get_status)
-        self.sig_perform_onboarding_request.connect(self.get_onboarding_file)
 
         self.template=template
         self.model_name=model_name
         self.apiKey=apiKey
         self.chain=None
-        self.parser = JsonOutputParser(pydantic_object=LangchainResponse)
 
     def start(self):
         if not self.thread_started:
@@ -99,7 +94,7 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
 
     def get_status(self, filename):
         """Get langchain status for a given filename."""
-        success_status, kite_status = self._get_status(filename)
+        kite_status = None
         if not filename or kite_status is None:
             kite_status = status()
             self.sig_status_response_ready[str].emit(kite_status)
@@ -121,7 +116,14 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
     def run_chain(self, params=None):
         response = None
         mapping_table = str.maketrans({'"': "'", "'": '"'})
-        response=json.loads(self.chain.invoke(params['text'])['text'].translate(mapping_table))
+        print("========================Inicioooooooooooooooooo======================")
+        print(params['text'])
+        print("========================Finaallllllllllllllllll======================")
+        prevResponse=self.chain.invoke(params['text'])['text']
+        print("========================InicioooResponse======================")
+        print(prevResponse)
+        print("========================FinaalllResponse======================")
+        response=json.loads(prevResponse.translate(mapping_table))
         return response
 
     def send(self, method, params, url_params):
@@ -144,6 +146,6 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
                     response = converter(response)
         if not isinstance(response, (dict, type(None))):
             if not running_under_pytest():
-                self.sig_client_wrong_response.emit(method, response)
+                print("error")
         else:
             self.sig_response_ready.emit(req_id, response or {})

@@ -13,7 +13,7 @@ import os
 import os.path as osp
 
 from qtpy.QtCore import QMutexLocker
-from completion_provider.decorators import (
+from langchain_provider.decorators import (
     send_request, handles)
 from spyder.plugins.completion.api import (
     CompletionRequestTypes, CompletionItemKind)
@@ -175,7 +175,7 @@ class DocumentProvider:
             'offset_encoding': 'utf-16',
         }
         return response
-
+"""
     @handles(CompletionRequestTypes.DOCUMENT_SIGNATURE)
     def process_signature(self, response):
         params = None
@@ -219,3 +219,4 @@ class DocumentProvider:
                     'provider': LANG_COMPLETION
                 }
         return {'params': params}
+"""

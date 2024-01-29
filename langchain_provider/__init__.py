@@ -24,7 +24,7 @@ class _LangchainParams():
                   Please enclose each suggestions in a list with a dict with key suggestions
                   """
     MODEL_NAME_PARAM = "gpt-3.5-turbo"
-    OPENAI_API_KEY_TEMP = "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"
+    OPENAI_API_KEY_TEMP = "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"
 
     def __getattribute__(self, attr):
         value = object.__getattribute__(self, attr)

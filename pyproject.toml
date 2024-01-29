@@ -31,10 +31,10 @@ classifiers = [
 Homepage = "https://github.com/jsbautista/spyder-completion-provider"
 
 [project.entry-points."spyder.completions"]
-langchain = "completion_provider.provider:LangchainProvider"
+langchain = "langchain_provider.provider:LangchainProvider"
 
-[tool.setuptools]
-packages = ["completion_provider"]
-py-modules = ["__init__"]
-license-files = ["LICENSE"]
-include-package-data = false
+#[tool.setuptools]
+#packages = ["langchain_provider"]
+#py-modules = ["__init__"]
+#license-files = ["LICENSE"]
+#include-package-data = false

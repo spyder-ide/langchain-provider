@@ -16,7 +16,7 @@ from spyder.config.base import _
 from spyder.utils.icon_manager import ima
 
 # Local imports
-from completion_provider.utils.status import (
+from langchain_provider.utils.status import (
     check_if_kite_installed, NOT_INSTALLED)
 
 logger = logging.getLogger(__name__)

@@ -5,4 +5,4 @@
 
 """Kite related widgets."""
 
-from .status import KiteStatusWidget
+from .status import LangchainStatusWidget
