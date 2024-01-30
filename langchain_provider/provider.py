@@ -40,7 +40,7 @@ class LangchainProvider(SpyderCompletionProvider):
     def __init__(self, parent, config):
         super().__init__(parent, config)
         IMAGE_PATH_MANAGER.add_image_path(
-            get_module_data_path('langchain', relpath='images')
+            get_module_data_path('langchain_provider', relpath='images')
         )
         self.available_languages = []
         self.client = LangchainClient(None,model_name=_LangchainParams.MODEL_NAME_PARAM,template=_LangchainParams.TEMPLATE_PARAM,
@@ -55,8 +55,8 @@ class LangchainProvider(SpyderCompletionProvider):
         self.client.sig_status_response_ready[dict].connect(
             self.set_status)
         self.client.sig_response_ready.connect(
-            functools.partial(self.sig_response_ready.emit,
-                              self.COMPLETION_PROVIDER_NAME))
+            lambda _id, resp: self.sig_response_ready.emit(
+                self.COMPLETION_PROVIDER_NAME, _id, resp))
 
         # Status bar widget
         self.STATUS_BAR_CLASSES = [
@@ -71,7 +71,13 @@ class LangchainProvider(SpyderCompletionProvider):
         return 'LangChain'
 
     def send_request(self, language, req_type, req, req_id):
-        self.client.sig_perform_request.emit(req_id, req_type, req)
+        request = {
+            'type': req_type,
+            'file': req['file'],
+            'id': req_id,
+            'msg': req
+        }
+        self.client.sig_perform_request.emit(request)
 
     def start_completion_services_for_language(self, language):
         return self.started

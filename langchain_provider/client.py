@@ -17,29 +17,43 @@ from langchain.prompts.chat import (
             SystemMessagePromptTemplate,
             HumanMessagePromptTemplate,
         )
-from qtpy.QtCore import QObject, QThread, Signal, QMutex
+from qtpy.QtCore import QObject, QThread, Signal, QMutex, Slot
 import json
+from collections import defaultdict
 
 # Spyder imports
 from spyder.config.base import _, running_under_pytest
 from spyder.py3compat import TEXT_TYPES
+from spyder.plugins.completion.api import (
+    CompletionRequestTypes, CompletionItemKind)
 
 
 # Local imports
-from langchain_provider.decorators import class_register
-from langchain_provider.providers import LangMethodProviderMixIn
 from langchain_provider.utils.status import status
 
 
 logger = logging.getLogger(__name__)
 
 
-@class_register
-class LangchainClient(QObject, LangMethodProviderMixIn):
+# Lang can return e.g. "int | str", so we make the default hint VALUE.
+LANG_DOCUMENT_TYPES = defaultdict(lambda: CompletionItemKind.VALUE, {
+    'function': CompletionItemKind.FUNCTION,
+    'type': CompletionItemKind.CLASS,
+    'module': CompletionItemKind.MODULE,
+    'descriptor': CompletionItemKind.PROPERTY,
+    'union': CompletionItemKind.VALUE,
+    'unknown': CompletionItemKind.TEXT,
+    'keyword': CompletionItemKind.KEYWORD,
+    'call': CompletionItemKind.FUNCTION,
+})
+LANG_COMPLETION = 'Langchain'
+LANG_ICON_SCALE = (416.14 / 526.8)
+
+class LangchainClient(QObject):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal()
     sig_client_not_responding = Signal()
-    sig_perform_request = Signal(int, str, object)
+    sig_perform_request = Signal(dict)
     sig_perform_status_request = Signal(str)
     sig_status_response_ready = Signal((str,), (dict,))
     sig_onboarding_response_ready = Signal(str)
@@ -56,7 +70,7 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
         self.thread = QThread(None)
         self.moveToThread(self.thread)
         self.thread.started.connect(self.started)
-        self.sig_perform_request.connect(self.perform_request)
+        self.sig_perform_request.connect(self.handle_msg)
         self.sig_perform_status_request.connect(self.get_status)
 
         self.template=template
@@ -116,36 +130,43 @@ class LangchainClient(QObject, LangMethodProviderMixIn):
     def run_chain(self, params=None):
         response = None
         mapping_table = str.maketrans({'"': "'", "'": '"'})
-        print("========================Inicioooooooooooooooooo======================")
-        print(params['text'])
-        print("========================Finaallllllllllllllllll======================")
-        prevResponse=self.chain.invoke(params['text'])['text']
-        print("========================InicioooResponse======================")
-        print(prevResponse)
-        print("========================FinaalllResponse======================")
-        response=json.loads(prevResponse.translate(mapping_table))
+        prevResponse = self.chain.invoke(params)['text'].translate(mapping_table)
+        response=json.loads("{"+prevResponse+"}")
         return response
 
-    def send(self, method, params, url_params):
+    def send(self, params):
         response = None
         response = self.run_chain(params=params)
         return response
 
-    def perform_request(self, req_id, method, params):
-        response = None
-        if method in self.sender_registry:
-            logger.debug('Perform request {0} with id {1}'.format(
-                method, req_id))
-            handler_name = self.sender_registry[method]
-            handler = getattr(self, handler_name)
-            response = handler(params)
-            if method in self.handler_registry:
-                converter_name = self.handler_registry[method]
-                converter = getattr(self, converter_name)
-                if response is not None:
-                    response = converter(response)
-        if not isinstance(response, (dict, type(None))):
-            if not running_under_pytest():
-                print("error")
-        else:
-            self.sig_response_ready.emit(req_id, response or {})
+    @Slot(dict)
+    def handle_msg(self, message):
+        """Handle one message"""
+        msg_type, _id, file, msg = [
+            message[k] for k in ('type', 'id', 'file', 'msg')]
+        logger.debug(u'Perform request {0} with id {1}'.format(msg_type, _id))
+        if msg_type == CompletionRequestTypes.DOCUMENT_DID_OPEN:
+            self.opened_files[msg['file']] = msg['text']
+        elif msg_type == CompletionRequestTypes.DOCUMENT_DID_CHANGE:
+            self.opened_files[msg['file']] = msg['text']            
+        elif msg_type == CompletionRequestTypes.DOCUMENT_COMPLETION:
+            response=self.send(self.opened_files[msg['file']])
+            logger.debug(response)
+            if response is None:
+                return {'params': []}
+            spyder_completions = []
+            completions = response['suggestions']
+            if completions is not None:
+                for i, completion in enumerate(completions):
+                    entry = {
+                        'kind': LANG_DOCUMENT_TYPES.get(CompletionItemKind.TEXT),
+                        'label': completion,
+                        'filterText': '',
+                        # Use the returned ordering
+                        'sortText': (i, 0),
+                        'documentation': completion,
+                        'provider': LANG_COMPLETION,
+                        'icon': ('kite', LANG_ICON_SCALE)
+                    }
+                    spyder_completions.append(entry)
+            self.sig_response_ready.emit(_id, {'params': spyder_completions})
