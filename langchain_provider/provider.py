@@ -48,7 +48,6 @@ class LangchainProvider(SpyderCompletionProvider):
                       suggestions
                   """.format(LANGUAGE,SUGGESTIONS)
     MODEL_NAME_PARAM = "gpt-3.5-turbo"
-    OPENAI_API_KEY_TEMP = "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"
 
     def __init__(self, parent, config):
         super().__init__(parent, config)
@@ -56,8 +55,7 @@ class LangchainProvider(SpyderCompletionProvider):
             get_module_data_path('langchain_provider', relpath='images')
         )
         self.available_languages = []
-        self.client = LangchainClient(None,model_name=self.MODEL_NAME_PARAM,template=self.TEMPLATE_PARAM,
-                                      apiKey=self.OPENAI_API_KEY_TEMP)
+        self.client = LangchainClient(None,model_name=self.MODEL_NAME_PARAM,template=self.TEMPLATE_PARAM)
 
         # Signals
         self.client.sig_client_started.connect(

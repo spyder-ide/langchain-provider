@@ -8,6 +8,7 @@
 # Standard library imports
 import logging
 from urllib.parse import quote
+import os
 
 # Third party imports
 from langchain.chat_models import ChatOpenAI
@@ -54,7 +55,7 @@ class LangchainClient(QObject):
     sig_status_response_ready = Signal((str,), (dict,))
     sig_onboarding_response_ready = Signal(str)
 
-    def __init__(self, parent, template, model_name, apiKey,enable_code_snippets=True,language='python'):
+    def __init__(self, parent, template, model_name,enable_code_snippets=True,language='python'):
         QObject.__init__(self, parent)
         self.requests = {}
         self.language = language
@@ -71,7 +72,6 @@ class LangchainClient(QObject):
 
         self.template=template
         self.model_name=model_name
-        self.apiKey=apiKey
         self.chain=None
 
     def start(self):
@@ -83,7 +83,7 @@ class LangchainClient(QObject):
         code_message_prompt = HumanMessagePromptTemplate.from_template(
             code_template,
             )        
-        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=self.apiKey)
+        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=os.environ.get("OPEN_AI_KEY"))
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
         chain = LLMChain(
             llm=llm,
