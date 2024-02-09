@@ -16,7 +16,6 @@ from qtpy.QtCore import Slot
 from qtpy.QtWidgets import QMessageBox
 
 # Local imports
-from langchain_provider import _LangchainParams
 from langchain_provider.client import LangchainClient
 from langchain_provider.widgets import (LangchainStatusWidget)
 
@@ -36,6 +35,20 @@ class LangchainProvider(SpyderCompletionProvider):
     DEFAULT_ORDER = 1
     SLOW = True
     CONF_VERSION = "1.0.0"
+    SUGGESTIONS='4'
+    LANGUAGE='Python'
+    TEMPLATE_PARAM = """You are a helpful assistant in completing following {0} code based
+                  on the previous sentence.
+                  You always complete the code in same line and give {1} suggestions.
+                  Example : a=3 b=4 print
+                  AI : "suggestions": ["print(a)", "print(b)", "print(a+b)"]
+                  Example : a=3 b=4 c
+                  AI : "suggestions": ["c=a+b", "c=a-b", "c=5"]
+                  Format the output as JSON with the following key:                  
+                      suggestions
+                  """.format(LANGUAGE,SUGGESTIONS)
+    MODEL_NAME_PARAM = "gpt-3.5-turbo"
+    OPENAI_API_KEY_TEMP = "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"
 
     def __init__(self, parent, config):
         super().__init__(parent, config)
@@ -43,8 +56,8 @@ class LangchainProvider(SpyderCompletionProvider):
             get_module_data_path('langchain_provider', relpath='images')
         )
         self.available_languages = []
-        self.client = LangchainClient(None,model_name=_LangchainParams.MODEL_NAME_PARAM,template=_LangchainParams.TEMPLATE_PARAM,
-                                      apiKey=_LangchainParams.OPENAI_API_KEY_TEMP)
+        self.client = LangchainClient(None,model_name=self.MODEL_NAME_PARAM,template=self.TEMPLATE_PARAM,
+                                      apiKey=self.OPENAI_API_KEY_TEMP)
 
         # Signals
         self.client.sig_client_started.connect(
@@ -104,8 +117,8 @@ class LangchainProvider(SpyderCompletionProvider):
         self.client.sig_perform_status_request.emit(filename)
 
     @on_conf_change(
-        section='completions', option=('enabled_providers', 'kite'))
-    def on_kite_enable_changed(self, value):
+        section='completions', option=('enabled_providers', 'langchain'))
+    def on_langchain_enable_changed(self, value):
         self.sig_call_statusbar.emit(
             LangchainStatusWidget.ID, 'set_value', (None,), {})
 

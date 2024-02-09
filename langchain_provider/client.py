@@ -28,10 +28,6 @@ from spyder.plugins.completion.api import (
     CompletionRequestTypes, CompletionItemKind)
 
 
-# Local imports
-from langchain_provider.utils.status import status
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -108,31 +104,19 @@ class LangchainClient(QObject):
 
     def get_status(self, filename):
         """Get langchain status for a given filename."""
-        kite_status = None
-        if not filename or kite_status is None:
-            kite_status = status()
-            self.sig_status_response_ready[str].emit(kite_status)
-        elif isinstance(kite_status, TEXT_TYPES):
-            status_str = status(extra_status=' with errors')
-            long_str = _("<code>{error}</code><br><br>"
-                         "Note: If you are using a VPN, "
-                         "please don't route requests to "
-                         "localhost/127.0.0.1 with it").format(
-                             error=kite_status)
-            kite_status_dict = {
-                'status': status_str,
-                'short': status_str,
-                'long': long_str}
-            self.sig_status_response_ready[dict].emit(kite_status_dict)
-        else:
-            self.sig_status_response_ready[dict].emit(kite_status)
+        langchain_status = None
+        if not filename or langchain_status is None:
+            langchain_status = self.model_name
+            self.sig_status_response_ready[str].emit(langchain_status)
 
     def run_chain(self, params=None):
         response = None
-        mapping_table = str.maketrans({'"': "'", "'": '"'})
-        prevResponse = self.chain.invoke(params)['text'].translate(mapping_table)
-        response=json.loads("{"+prevResponse+"}")
-        return response
+        prevResponse = self.chain.invoke(params)['text']
+        try:
+            response=json.loads("{"+prevResponse+"}")
+            return response
+        except:      
+            return None
 
     def send(self, params):
         response = None
@@ -161,12 +145,13 @@ class LangchainClient(QObject):
                     entry = {
                         'kind': LANG_DOCUMENT_TYPES.get(CompletionItemKind.TEXT),
                         'label': completion,
+                        'insertText': completion,
                         'filterText': '',
                         # Use the returned ordering
                         'sortText': (i, 0),
                         'documentation': completion,
                         'provider': LANG_COMPLETION,
-                        'icon': ('kite', LANG_ICON_SCALE)
+                        #'icon': ('kite', LANG_ICON_SCALE)
                     }
                     spyder_completions.append(entry)
             self.sig_response_ready.emit(_id, {'params': spyder_completions})

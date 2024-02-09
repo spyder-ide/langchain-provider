@@ -16,8 +16,6 @@ from spyder.config.base import _
 from spyder.utils.icon_manager import ima
 
 # Local imports
-from langchain_provider.utils.status import (
-    check_if_kite_installed, NOT_INSTALLED)
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +42,13 @@ class LangchainStatusWidget(StatusBarWidget):
             self.tooltip = value['long']
             value = value['short']
         elif value is not None:
-            self.setVisible(True)
-            if value == NOT_INSTALLED:
-                return
+            self.setVisible(True)            
         elif value is None:
             value = self.DEFAULT_STATUS
             self.tooltip = self.BASE_TOOLTIP
         self.update_tooltip()
         self.setVisible(langchain_enabled)
-        value = "KiteChain: {0}".format(value)
+        value = "Langchain: {0}".format(value)
         super(LangchainStatusWidget, self).set_value(value)
 
     def get_tooltip(self):
