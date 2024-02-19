@@ -83,7 +83,7 @@ class LangchainClient(QObject):
         code_message_prompt = HumanMessagePromptTemplate.from_template(
             code_template,
             )        
-        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=os.environ.get("OPEN_AI_KEY"))
+        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=os.environ.get("OPENAI_API_KEY"))
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
         chain = LLMChain(
             llm=llm,
