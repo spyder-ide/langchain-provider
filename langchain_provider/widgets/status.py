@@ -9,11 +9,17 @@ Status widget for Kite completions.
 
 # Standard library imports
 import logging
+import os
+
+# Third party imports
+from qtpy.QtCore import QPoint, Signal
 
 # Spyder imports
 from spyder.api.widgets.status import StatusBarWidget
 from spyder.config.base import _
 from spyder.utils.icon_manager import ima
+from spyder.api.widgets.menus import SpyderMenu
+from spyder.utils.qthelpers import add_actions, create_action
 
 # Local imports
 
@@ -31,6 +37,8 @@ class LangchainStatusWidget(StatusBarWidget):
         self.tooltip = self.BASE_TOOLTIP
         super().__init__(parent)
         self.setVisible(True)
+        self.menu = SpyderMenu(self)
+        self.sig_clicked.connect(self.show_menu)
 
     def set_value(self, value):
         """Return Langchain completions state."""
@@ -54,6 +62,23 @@ class LangchainStatusWidget(StatusBarWidget):
     def get_tooltip(self):
         """Reimplementation to get a dynamic tooltip."""
         return self.tooltip
+
+    def show_menu(self):
+        """Display a menu when clicking on the widget."""
+        menu = self.menu
+        menu.clear()
+        text = _("Change default parameters to autocompletions")
+        change_action = create_action(
+            self,
+            text=text,
+            #triggered=self.open_interpreter_preferences,
+        )
+        add_actions(menu, [change_action])
+        rect = self.contentsRect()
+        os_height = 7 if os.name == 'nt' else 12
+        pos = self.mapToGlobal(
+            rect.topLeft() + QPoint(-40, -rect.height() - os_height))
+        menu.popup(pos)    
 
     def get_icon(self):
         return ima.icon('kite')

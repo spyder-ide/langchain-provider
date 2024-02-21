@@ -24,7 +24,7 @@ To use this completions provider you will need to install Spyder 6 (at least 6.0
 
 To install the provider package, you can use `pip` with something like:
 
-    pip install git+https://github.com/spyder-ide/langchain-provider.git@v0.2.0
+    pip install git+https://github.com/spyder-ide/langchain-provider.git
 
 
 ## Common issues

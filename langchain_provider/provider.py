@@ -61,6 +61,7 @@ class LangchainProvider(SpyderCompletionProvider):
         self.client.sig_client_started.connect(
             lambda: self.sig_provider_ready.emit(
                 self.COMPLETION_PROVIDER_NAME))
+        self.client.sig_client_error.connect(self.set_status_error)
         self.client.sig_status_response_ready[str].connect(
             self.set_status)
         self.client.sig_status_response_ready[dict].connect(
@@ -109,6 +110,11 @@ class LangchainProvider(SpyderCompletionProvider):
         """Show Langchain status for the current file."""
         self.sig_call_statusbar.emit(
             LangchainStatusWidget.ID, 'set_value', (status,), {})
+        
+    def set_status_error(self):
+        """Show Langchain status for the current file."""
+        self.sig_call_statusbar.emit(
+            LangchainStatusWidget.ID, 'set_value', ("Unexpected error",), {})    
 
     def file_opened_closed_or_updated(self, filename, _language):
         """Request status for the given file."""

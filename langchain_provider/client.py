@@ -7,7 +7,6 @@
 
 # Standard library imports
 import logging
-from urllib.parse import quote
 import os
 
 # Third party imports
@@ -32,24 +31,13 @@ from spyder.plugins.completion.api import (
 logger = logging.getLogger(__name__)
 
 
-# Lang can return e.g. "int | str", so we make the default hint VALUE.
-LANG_DOCUMENT_TYPES = defaultdict(lambda: CompletionItemKind.VALUE, {
-    'function': CompletionItemKind.FUNCTION,
-    'type': CompletionItemKind.CLASS,
-    'module': CompletionItemKind.MODULE,
-    'descriptor': CompletionItemKind.PROPERTY,
-    'union': CompletionItemKind.VALUE,
-    'unknown': CompletionItemKind.TEXT,
-    'keyword': CompletionItemKind.KEYWORD,
-    'call': CompletionItemKind.FUNCTION,
-})
 LANG_COMPLETION = 'Langchain'
 LANG_ICON_SCALE = (416.14 / 526.8)
 
 class LangchainClient(QObject):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal()
-    sig_client_not_responding = Signal()
+    sig_client_eror = Signal()
     sig_perform_request = Signal(dict)
     sig_perform_status_request = Signal(str)
     sig_status_response_ready = Signal((str,), (dict,))
@@ -82,15 +70,19 @@ class LangchainClient(QObject):
         code_template = "{text}"
         code_message_prompt = HumanMessagePromptTemplate.from_template(
             code_template,
-            )        
-        llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=os.environ.get("OPENAI_API_KEY"))
-        chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
-        chain = LLMChain(
-            llm=llm,
-            prompt=chat_prompt,
             )
-        self.chain=chain
-        self.sig_client_started.emit()
+        try:        
+            llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=os.environ.get("OPENAI_API_KEY"))
+            chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
+            chain = LLMChain(
+                llm=llm,
+                prompt=chat_prompt,
+                )
+            self.chain=chain
+            self.sig_client_started.emit()
+        except:
+            self.sig_client_error.emit()
+        
 
     def started(self):
         self.thread_started = True
@@ -111,11 +103,15 @@ class LangchainClient(QObject):
 
     def run_chain(self, params=None):
         response = None
-        prevResponse = self.chain.invoke(params)['text']
         try:
-            response=json.loads("{"+prevResponse+"}")
+            prevResponse = self.chain.invoke(params)['text']
+            if(prevResponse[0] == '"'):
+                response=json.loads("{"+prevResponse+"}")
+            else:
+                response=json.loads(prevResponse)
             return response
-        except:      
+        except:
+            self.sig_client_error.emit()
             return None
 
     def send(self, params):
@@ -143,12 +139,12 @@ class LangchainClient(QObject):
             if completions is not None:
                 for i, completion in enumerate(completions):
                     entry = {
-                        'kind': LANG_DOCUMENT_TYPES.get(CompletionItemKind.TEXT),
+                        'kind': CompletionItemKind.TEXT,
                         'label': completion,
                         'insertText': completion,
                         'filterText': '',
                         # Use the returned ordering
-                        'sortText': (i, 0),
+                        'sortText': (0, i),
                         'documentation': completion,
                         'provider': LANG_COMPLETION,
                         #'icon': ('kite', LANG_ICON_SCALE)
