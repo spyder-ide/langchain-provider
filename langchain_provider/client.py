@@ -3,7 +3,7 @@
 # Copyright © Spyder Project Contributors
 # Licensed under the terms of the MIT License
 
-"""Kite completions HTTP client."""
+"""Langchain completions HTTP client."""
 
 # Standard library imports
 import logging

@@ -4,7 +4,7 @@
 # Licensed under the terms of the MIT License
 
 """
-Status widget for Kite completions.
+Status widget for Langchain + OpenAI completions.
 """
 
 # Standard library imports
@@ -12,6 +12,7 @@ import logging
 import os
 
 # Third party imports
+import qtawesome as qta
 from qtpy.QtCore import QPoint, Signal
 
 # Spyder imports
@@ -81,4 +82,4 @@ class LangchainStatusWidget(StatusBarWidget):
         menu.popup(pos)    
 
     def get_icon(self):
-        return ima.icon('kite')
+        return qta.icon('mdi6.link-variant', color=ima.MAIN_FG_COLOR)

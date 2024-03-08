@@ -1,6 +1,6 @@
 langchain
-psutil
+openai
 qtawesome
 qtpy
 setuptools
-spyder>=6.0
+spyder>=6.0.0a3
