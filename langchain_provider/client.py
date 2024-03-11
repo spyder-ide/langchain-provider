@@ -37,7 +37,7 @@ LANG_ICON_SCALE = (416.14 / 526.8)
 class LangchainClient(QObject):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal()
-    sig_client_eror = Signal()
+    sig_client_error = Signal()
     sig_perform_request = Signal(dict)
     sig_perform_status_request = Signal(str)
     sig_status_response_ready = Signal((str,), (dict,))

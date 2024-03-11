@@ -26,8 +26,7 @@ To install the provider package, you can use `pip` with something like:
 
     pip install git+https://github.com/spyder-ide/langchain-provider.git
 
-
-## Common issues
+Also, you need to have a OpenAI API key, which you can get from [here](https://platform.openai.com/signup) and then set it as a environment variable (`OPENAI_API_KEY`).
 
 ## Dependencies
 
