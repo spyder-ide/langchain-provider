@@ -7,12 +7,6 @@
 [![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/spyder/sponsors/badge.svg?color=blue)](#sponsors)
 
-## Build status
-
-![Linux tests](https://github.com/spyder-ide/langchain-provider/workflows/Linux%20tests/badge.svg)
-![Macos tests](https://github.com/spyder-ide/langchain-provider/workflows/Macos%20tests/badge.svg)
-![Window tests](https://github.com/spyder-ide/langchain-provider/workflows/Windows%20tests/badge.svg)
-
 ----
 
 # Overview

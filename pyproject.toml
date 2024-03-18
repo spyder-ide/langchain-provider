@@ -26,6 +26,9 @@ classifiers = [
     "Topic :: Text Editors :: Integrated Development Environments (IDE)",
 ]
 
+[project.optional-dependencies]
+extras = ["pre-commit"]
+
 [project.urls]
 Homepage = "https://github.com/spyder-ide/langchain-provider"
 
