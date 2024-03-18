@@ -13,10 +13,10 @@ import os
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts.chat import (
-            ChatPromptTemplate,
-            SystemMessagePromptTemplate,
-            HumanMessagePromptTemplate,
-        )
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
 from qtpy.QtCore import QObject, QThread, Signal, QMutex, Slot
 import json
 from collections import defaultdict
@@ -24,15 +24,15 @@ from collections import defaultdict
 # Spyder imports
 from spyder.config.base import _, running_under_pytest
 from spyder.py3compat import TEXT_TYPES
-from spyder.plugins.completion.api import (
-    CompletionRequestTypes, CompletionItemKind)
+from spyder.plugins.completion.api import CompletionRequestTypes, CompletionItemKind
 
 
 logger = logging.getLogger(__name__)
 
 
-LANG_COMPLETION = 'Langchain'
-LANG_ICON_SCALE = (416.14 / 526.8)
+LANG_COMPLETION = "Langchain"
+LANG_ICON_SCALE = 416.14 / 526.8
+
 
 class LangchainClient(QObject):
     sig_response_ready = Signal(int, dict)
@@ -43,7 +43,9 @@ class LangchainClient(QObject):
     sig_status_response_ready = Signal((str,), (dict,))
     sig_onboarding_response_ready = Signal(str)
 
-    def __init__(self, parent, template, model_name,enable_code_snippets=True,language='python'):
+    def __init__(
+        self, parent, template, model_name, enable_code_snippets=True, language="python"
+    ):
         QObject.__init__(self, parent)
         self.requests = {}
         self.language = language
@@ -58,38 +60,43 @@ class LangchainClient(QObject):
         self.sig_perform_request.connect(self.handle_msg)
         self.sig_perform_status_request.connect(self.get_status)
 
-        self.template=template
-        self.model_name=model_name
-        self.chain=None
+        self.template = template
+        self.model_name = model_name
+        self.chain = None
 
     def start(self):
         if not self.thread_started:
             self.thread.start()
-        logger.debug('Starting LangChain session...')
+        logger.debug("Starting LangChain session...")
         system_message_prompt = SystemMessagePromptTemplate.from_template(self.template)
         code_template = "{text}"
         code_message_prompt = HumanMessagePromptTemplate.from_template(
             code_template,
+        )
+        try:
+            llm = ChatOpenAI(
+                temperature=0,
+                model_name=self.model_name,
+                openai_api_key=os.environ.get("OPENAI_API_KEY"),
             )
-        try:        
-            llm=ChatOpenAI(temperature=0,model_name=self.model_name,openai_api_key=os.environ.get("OPENAI_API_KEY"))
-            chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, code_message_prompt])
+            chat_prompt = ChatPromptTemplate.from_messages(
+                [system_message_prompt, code_message_prompt]
+            )
             chain = LLMChain(
                 llm=llm,
                 prompt=chat_prompt,
-                )
-            self.chain=chain
+            )
+            self.chain = chain
             self.sig_client_started.emit()
         except:
             self.sig_client_error.emit()
-        
 
     def started(self):
         self.thread_started = True
 
     def stop(self):
         if self.thread_started:
-            logger.debug('Closing LangChain session...')
+            logger.debug("Closing LangChain session...")
             self.thread.quit()
             self.thread.wait()
             self.thread_started = False
@@ -104,11 +111,11 @@ class LangchainClient(QObject):
     def run_chain(self, params=None):
         response = None
         try:
-            prevResponse = self.chain.invoke(params)['text']
-            if(prevResponse[0] == '"'):
-                response=json.loads("{"+prevResponse+"}")
+            prevResponse = self.chain.invoke(params)["text"]
+            if prevResponse[0] == '"':
+                response = json.loads("{" + prevResponse + "}")
             else:
-                response=json.loads(prevResponse)
+                response = json.loads(prevResponse)
             return response
         except:
             self.sig_client_error.emit()
@@ -122,32 +129,31 @@ class LangchainClient(QObject):
     @Slot(dict)
     def handle_msg(self, message):
         """Handle one message"""
-        msg_type, _id, file, msg = [
-            message[k] for k in ('type', 'id', 'file', 'msg')]
-        logger.debug(u'Perform request {0} with id {1}'.format(msg_type, _id))
+        msg_type, _id, file, msg = [message[k] for k in ("type", "id", "file", "msg")]
+        logger.debug("Perform request {0} with id {1}".format(msg_type, _id))
         if msg_type == CompletionRequestTypes.DOCUMENT_DID_OPEN:
-            self.opened_files[msg['file']] = msg['text']
+            self.opened_files[msg["file"]] = msg["text"]
         elif msg_type == CompletionRequestTypes.DOCUMENT_DID_CHANGE:
-            self.opened_files[msg['file']] = msg['text']            
+            self.opened_files[msg["file"]] = msg["text"]
         elif msg_type == CompletionRequestTypes.DOCUMENT_COMPLETION:
-            response=self.send(self.opened_files[msg['file']])
+            response = self.send(self.opened_files[msg["file"]])
             logger.debug(response)
             if response is None:
-                return {'params': []}
+                return {"params": []}
             spyder_completions = []
-            completions = response['suggestions']
+            completions = response["suggestions"]
             if completions is not None:
                 for i, completion in enumerate(completions):
                     entry = {
-                        'kind': CompletionItemKind.TEXT,
-                        'label': completion,
-                        'insertText': completion,
-                        'filterText': '',
+                        "kind": CompletionItemKind.TEXT,
+                        "label": completion,
+                        "insertText": completion,
+                        "filterText": "",
                         # Use the returned ordering
-                        'sortText': (0, i),
-                        'documentation': completion,
-                        'provider': LANG_COMPLETION,
+                        "sortText": (0, i),
+                        "documentation": completion,
+                        "provider": LANG_COMPLETION,
                         #'icon': ('kite', LANG_ICON_SCALE)
                     }
                     spyder_completions.append(entry)
-            self.sig_response_ready.emit(_id, {'params': spyder_completions})
+            self.sig_response_ready.emit(_id, {"params": spyder_completions})
