@@ -37,7 +37,7 @@ LANG_ICON_SCALE = 416.14 / 526.8
 class LangchainClient(QObject):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal()
-    sig_client_error = Signal()
+    sig_client_error = Signal(str)
     sig_perform_request = Signal(dict)
     sig_perform_status_request = Signal(str)
     sig_status_response_ready = Signal((str,), (dict,))
@@ -77,7 +77,6 @@ class LangchainClient(QObject):
             llm = ChatOpenAI(
                 temperature=0,
                 model_name=self.model_name,
-                openai_api_key=os.environ.get("OPENAI_API_KEY"),
             )
             chat_prompt = ChatPromptTemplate.from_messages(
                 [system_message_prompt, code_message_prompt]
@@ -88,8 +87,12 @@ class LangchainClient(QObject):
             )
             self.chain = chain
             self.sig_client_started.emit()
-        except:
-            self.sig_client_error.emit()
+        except ValueError as e:
+            logger.debug(e)
+            self.sig_client_error.emit("Missing OpenAI API key")
+        except Exception as e:
+            logger.debug(e)
+            self.sig_client_error.emit("Unexpected error")
 
     def started(self):
         self.thread_started = True
@@ -117,9 +120,9 @@ class LangchainClient(QObject):
             else:
                 response = json.loads(prevResponse)
             return response
-        except:
-            self.sig_client_error.emit()
-            return None
+        except Exception:
+            self.sig_client_error.emit("No suggestions available")
+            return {"suggestions": []}
 
     def send(self, params):
         response = None

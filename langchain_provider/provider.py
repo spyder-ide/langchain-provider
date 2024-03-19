@@ -104,10 +104,10 @@ class LangchainProvider(SpyderCompletionProvider):
             LangchainStatusWidget.ID, "set_value", (status,), {}
         )
 
-    def set_status_error(self):
+    def set_status_error(self, error_message):
         """Show Langchain status for the current file."""
         self.sig_call_statusbar.emit(
-            LangchainStatusWidget.ID, "set_value", ("Unexpected error",), {}
+            LangchainStatusWidget.ID, "set_value", (error_message,), {}
         )
 
     def file_opened_closed_or_updated(self, filename, _language):
