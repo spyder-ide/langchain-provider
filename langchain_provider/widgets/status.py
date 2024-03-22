@@ -82,4 +82,4 @@ class LangchainStatusWidget(StatusBarWidget):
         menu.popup(pos)
 
     def get_icon(self):
-        return qta.icon("mdi6.link-variant", color=ima.MAIN_FG_COLOR)
+        return ima.icon("langchain")

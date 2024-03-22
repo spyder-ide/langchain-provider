@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 LANG_COMPLETION = "Langchain"
-LANG_ICON_SCALE = 416.14 / 526.8
+LANG_ICON_SCALE = 1
 
 
 class LangchainClient(QObject):
@@ -156,7 +156,7 @@ class LangchainClient(QObject):
                         "sortText": (0, i),
                         "documentation": completion,
                         "provider": LANG_COMPLETION,
-                        #'icon': ('kite', LANG_ICON_SCALE)
+                        "icon": ("langchain", LANG_ICON_SCALE),
                     }
                     spyder_completions.append(entry)
             self.sig_response_ready.emit(_id, {"params": spyder_completions})

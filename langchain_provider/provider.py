@@ -21,8 +21,9 @@ from langchain_provider.widgets import LangchainStatusWidget
 
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
-from spyder.config.base import _, running_under_pytest
+from spyder.config.base import _, running_under_pytest, get_module_data_path
 from spyder.plugins.completion.api import SpyderCompletionProvider
+from spyder.utils.image_path_manager import IMAGE_PATH_MANAGER
 
 
 logger = logging.getLogger(__name__)
@@ -51,6 +52,9 @@ class LangchainProvider(SpyderCompletionProvider):
 
     def __init__(self, parent, config):
         super().__init__(parent, config)
+        IMAGE_PATH_MANAGER.add_image_path(
+            get_module_data_path("langchain_provider", relpath="images")
+        )
         self.available_languages = []
         self.client = LangchainClient(
             None, model_name=self.MODEL_NAME_PARAM, template=self.TEMPLATE_PARAM
