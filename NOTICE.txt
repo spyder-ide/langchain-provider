@@ -157,6 +157,36 @@ Files covered:
 ===============================================================================
 
 
+Icons for Langchain Provider
+---------------------------------
+
+
+Copyright (c) 2023 Pictogrammers
+
+
+Author: Austin Andrews | https://pictogrammers.com/contributor/Templarian/
+Site: https://pictogrammers.com
+Source: https://pictogrammers.com/library/mdi/icon/link-variant/
+License: Apache License Version 2.0.
+https://www.apache.org/licenses/LICENSE-2.0.txt
+
+
+Licensed under the terms of the Apache License Version 2.0.
+
+
+See below for the full text of the Apache License Version 2.0.
+
+
+Files covered:
+
+langchain_provider/images/dark/langchain.svg
+langchain_provider/images/light/langchain.svg
+
+
+-------------------------------------------------------------------------------
+
+
+
 
 
 Full License Text
