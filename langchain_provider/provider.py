@@ -7,13 +7,10 @@
 
 # Standard library imports
 import logging
-import functools
 import os
-import os.path as osp
 
 # Qt imports
 from qtpy.QtCore import Slot
-from qtpy.QtWidgets import QMessageBox
 
 # Local imports
 from langchain_provider.client import LangchainClient
@@ -21,7 +18,7 @@ from langchain_provider.widgets import LangchainStatusWidget
 
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
-from spyder.config.base import _, running_under_pytest, get_module_data_path
+from spyder.config.base import running_under_pytest, get_module_data_path
 from spyder.plugins.completion.api import SpyderCompletionProvider
 from spyder.utils.image_path_manager import IMAGE_PATH_MANAGER
 
@@ -34,8 +31,11 @@ class LangchainProvider(SpyderCompletionProvider):
     DEFAULT_ORDER = 1
     SLOW = True
     CONF_VERSION = "1.0.0"
-    SUGGESTIONS = "4"
-    LANGUAGE = "Python"
+    CONF_DEFAULTS = [
+        ("suggestions", 4),
+        ("language", "Python"),
+        ("model_name", "gpt-3.5-turbo"),
+    ]
     TEMPLATE_PARAM = """You are a helpful assistant in completing following {0} code based
                   on the previous sentence.
                   You always complete the code in same line and give {1} suggestions.
@@ -45,10 +45,7 @@ class LangchainProvider(SpyderCompletionProvider):
                   AI : "suggestions": ["c=a+b", "c=a-b", "c=5"]
                   Format the output as JSON with the following key:
                       suggestions
-                  """.format(
-        LANGUAGE, SUGGESTIONS
-    )
-    MODEL_NAME_PARAM = "gpt-3.5-turbo"
+                  """
 
     def __init__(self, parent, config):
         super().__init__(parent, config)
@@ -57,7 +54,11 @@ class LangchainProvider(SpyderCompletionProvider):
         )
         self.available_languages = []
         self.client = LangchainClient(
-            None, model_name=self.MODEL_NAME_PARAM, template=self.TEMPLATE_PARAM
+            None,
+            model_name=self.get_conf("model_name"),
+            template=self.TEMPLATE_PARAM.format(
+                self.get_conf("language"), self.get_conf("suggestions")
+            ),
         )
 
         # Signals

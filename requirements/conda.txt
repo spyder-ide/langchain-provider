@@ -1,7 +1,0 @@
-langchain
-openai
-qtawesome
-qtpy
-setuptools
-spyder>=6.0.0a3
-pre-commit
