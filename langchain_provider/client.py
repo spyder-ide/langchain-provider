@@ -6,8 +6,8 @@
 """Langchain completions HTTP client."""
 
 # Standard library imports
+import json
 import logging
-import os
 
 # Third party imports
 from langchain_community.chat_models import ChatOpenAI
@@ -18,12 +18,8 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate,
 )
 from qtpy.QtCore import QObject, QThread, Signal, QMutex, Slot
-import json
-from collections import defaultdict
 
 # Spyder imports
-from spyder.config.base import _, running_under_pytest
-from spyder.py3compat import TEXT_TYPES
 from spyder.plugins.completion.api import CompletionRequestTypes, CompletionItemKind
 
 

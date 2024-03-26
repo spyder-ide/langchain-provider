@@ -12,8 +12,7 @@ import logging
 import os
 
 # Third party imports
-import qtawesome as qta
-from qtpy.QtCore import QPoint, Signal
+from qtpy.QtCore import QPoint
 
 # Spyder imports
 from spyder.api.widgets.status import StatusBarWidget
