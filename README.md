@@ -7,12 +7,6 @@
 [![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/spyder/sponsors/badge.svg?color=blue)](#sponsors)
 
-## Build status
-
-![Linux tests](https://github.com/spyder-ide/langchain-provider/workflows/Linux%20tests/badge.svg)
-![Macos tests](https://github.com/spyder-ide/langchain-provider/workflows/Macos%20tests/badge.svg)
-![Window tests](https://github.com/spyder-ide/langchain-provider/workflows/Windows%20tests/badge.svg)
-
 ----
 
 # Overview
@@ -26,8 +20,11 @@ To install the provider package, you can use `pip` with something like:
 
     pip install git+https://github.com/spyder-ide/langchain-provider.git
 
+Also, you need to have a OpenAI API key, which you can get from [here](https://platform.openai.com/signup) and then set it as a environment variable (`OPENAI_API_KEY`).
 
-## Common issues
+## Preview
+
+![langchain provider demo](https://raw.githubusercontent.com/spyder-ide/langchain-provider/master/langchain-provider.gif)
 
 ## Dependencies
 

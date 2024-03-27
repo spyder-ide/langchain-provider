@@ -4,7 +4,7 @@
 # Licensed under the terms of the MIT License
 
 """
-Status widget for Kite completions.
+Status widget for Langchain + OpenAI completions.
 """
 
 # Standard library imports
@@ -12,7 +12,7 @@ import logging
 import os
 
 # Third party imports
-from qtpy.QtCore import QPoint, Signal
+from qtpy.QtCore import QPoint
 
 # Spyder imports
 from spyder.api.widgets.status import StatusBarWidget
@@ -28,9 +28,10 @@ logger = logging.getLogger(__name__)
 
 class LangchainStatusWidget(StatusBarWidget):
     """Status bar widget for LangChain completions status."""
+
     BASE_TOOLTIP = _("LangChain completions status")
-    DEFAULT_STATUS = _('not reachable')
-    ID = 'langchain_status'
+    DEFAULT_STATUS = _("not reachable")
+    ID = "langchain_status"
 
     def __init__(self, parent, provider):
         self.provider = provider
@@ -42,15 +43,15 @@ class LangchainStatusWidget(StatusBarWidget):
 
     def set_value(self, value):
         """Return Langchain completions state."""
-        langchain_enabled = self.provider.get_conf(('enabled_providers', 'langchain'),
-                                              default=True,
-                                              section='completions')
+        langchain_enabled = self.provider.get_conf(
+            ("enabled_providers", "langchain"), default=True, section="completions"
+        )
 
-        if (value is not None and 'short' in value):
-            self.tooltip = value['long']
-            value = value['short']
+        if value is not None and "short" in value:
+            self.tooltip = value["long"]
+            value = value["short"]
         elif value is not None:
-            self.setVisible(True)            
+            self.setVisible(True)
         elif value is None:
             value = self.DEFAULT_STATUS
             self.tooltip = self.BASE_TOOLTIP
@@ -71,14 +72,13 @@ class LangchainStatusWidget(StatusBarWidget):
         change_action = create_action(
             self,
             text=text,
-            #triggered=self.open_interpreter_preferences,
+            # triggered=self.open_interpreter_preferences,
         )
         add_actions(menu, [change_action])
         rect = self.contentsRect()
-        os_height = 7 if os.name == 'nt' else 12
-        pos = self.mapToGlobal(
-            rect.topLeft() + QPoint(-40, -rect.height() - os_height))
-        menu.popup(pos)    
+        os_height = 7 if os.name == "nt" else 12
+        pos = self.mapToGlobal(rect.topLeft() + QPoint(-40, -rect.height() - os_height))
+        menu.popup(pos)
 
     def get_icon(self):
-        return ima.icon('kite')
+        return ima.icon("langchain")
