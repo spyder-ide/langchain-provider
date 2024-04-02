@@ -7,4 +7,6 @@
 
 from .status import LangchainStatusWidget
 
-__all__ = ["LangchainStatusWidget"]
+__all__ = [
+    "LangchainStatusWidget",
+]

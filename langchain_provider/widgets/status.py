@@ -15,13 +15,14 @@ import os
 from qtpy.QtCore import QPoint
 
 # Spyder imports
+from spyder.api.translations import _
 from spyder.api.widgets.status import StatusBarWidget
-from spyder.config.base import _
 from spyder.utils.icon_manager import ima
 from spyder.api.widgets.menus import SpyderMenu
 from spyder.utils.qthelpers import add_actions, create_action
 
 # Local imports
+from .config_dialog import LangchainConfigDialog
 
 logger = logging.getLogger(__name__)
 
@@ -64,15 +65,19 @@ class LangchainStatusWidget(StatusBarWidget):
         """Reimplementation to get a dynamic tooltip."""
         return self.tooltip
 
+    def open_provider_preferences(self):
+        config_dialog = LangchainConfigDialog(self.provider, parent=self)
+        config_dialog.show()
+
     def show_menu(self):
         """Display a menu when clicking on the widget."""
         menu = self.menu
         menu.clear()
-        text = _("Change default parameters to autocompletions")
+        text = _("Change provider parameters")
         change_action = create_action(
             self,
             text=text,
-            # triggered=self.open_interpreter_preferences,
+            triggered=self.open_provider_preferences,
         )
         add_actions(menu, [change_action])
         rect = self.contentsRect()

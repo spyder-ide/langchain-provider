@@ -10,7 +10,7 @@ authors = [
     {name = "Spyder Project Contributors", email = "spyder.python@gmail.com"},
 ]
 license = {text = "MIT license"}
-dependencies = ["qt-jsonschema-form", "langchain", "langchain-community", "openai", "qtawesome", "qtpy", "spyder>=6.0.0a3"]
+dependencies = ["langchain", "langchain-community", "openai", "qtawesome", "qtpy", "spyder>=6.0.0a3"]
 requires-python = ">= 3.8"
 readme = "README.md"
 classifiers = [

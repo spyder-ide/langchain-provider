@@ -26,6 +26,12 @@ Also, you need to have a OpenAI API key, which you can get from [here](https://p
 
 ![langchain provider demo](https://raw.githubusercontent.com/spyder-ide/langchain-provider/master/langchain-provider.gif)
 
+## Configuration
+
+To configure the provider number of suggestions (1 - 10) or the model to use (`gpt-3.5-turbo`, or `gpt4`) you can click on the Langchain status bar and click the `Change provider parameters` menu entry:
+
+![langchain provider config](https://raw.githubusercontent.com/spyder-ide/langchain-provider/master/langchain-provider-config.gif)
+
 ## Dependencies
 
 This project depends on [Spyder](https://github.com/spyder-ide/spyder).

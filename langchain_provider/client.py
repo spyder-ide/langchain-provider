@@ -39,9 +39,7 @@ class LangchainClient(QObject):
     sig_status_response_ready = Signal((str,), (dict,))
     sig_onboarding_response_ready = Signal(str)
 
-    def __init__(
-        self, parent, template, model_name, enable_code_snippets=True, language="python"
-    ):
+    def __init__(self, parent, template, model_name, language="python"):
         QObject.__init__(self, parent)
         self.requests = {}
         self.language = language
@@ -49,7 +47,6 @@ class LangchainClient(QObject):
         self.opened_files = {}
         self.opened_files_status = {}
         self.thread_started = False
-        self.enable_code_snippets = enable_code_snippets
         self.thread = QThread(None)
         self.moveToThread(self.thread)
         self.thread.started.connect(self.started)
@@ -99,6 +96,12 @@ class LangchainClient(QObject):
             self.thread.quit()
             self.thread.wait()
             self.thread_started = False
+
+    def update_configuration(self, model_name, template):
+        self.stop()
+        self.model_name = model_name
+        self.template = template
+        self.start()
 
     def get_status(self, filename):
         """Get langchain status for a given filename."""

@@ -77,8 +77,6 @@ class LangchainProvider(SpyderCompletionProvider):
         # Status bar widget
         self.STATUS_BAR_CLASSES = [self.create_statusbar]
         self.started = False
-        # Config
-        self.update_langchain_configuration(self.config)
 
     # ------------------ SpyderCompletionProvider methods ---------------------
     def get_name(self):
@@ -123,21 +121,17 @@ class LangchainProvider(SpyderCompletionProvider):
     def on_langchain_enable_changed(self, value):
         self.sig_call_statusbar.emit(LangchainStatusWidget.ID, "set_value", (None,), {})
 
-    @on_conf_change(section="completions", option="enable_code_snippets")
-    def on_code_snippets_changed(self, value):
-        if running_under_pytest():
-            if not os.environ.get("SPY_TEST_USE_INTROSPECTION"):
-                return
-
-        self.client.enable_code_snippets = self.get_conf(
-            "enable_code_snippets", section="completions"
-        )
-
     @on_conf_change
     def update_langchain_configuration(self, config):
         if running_under_pytest():
             if not os.environ.get("SPY_TEST_USE_INTROSPECTION"):
                 return
+        self.client.update_configuration(
+            self.get_conf("model_name"),
+            self.TEMPLATE_PARAM.format(
+                self.get_conf("language"), self.get_conf("suggestions")
+            ),
+        )
 
     def create_statusbar(self, parent):
         return LangchainStatusWidget(parent, self)
