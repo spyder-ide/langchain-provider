@@ -16,9 +16,13 @@
 
 To use this completions provider you will need to install Spyder 6 (at least 6.0.0a3)
 
-To install the provider package, you can use `pip` with something like:
+To install the provider package from source, you can use `pip` with something like:
 
     pip install git+https://github.com/spyder-ide/langchain-provider.git
+
+Or from PyPI something like:
+
+    pip install langchain-provider
 
 Also, you need to have a OpenAI API key, which you can get from [here](https://platform.openai.com/signup) and then set it as a environment variable (`OPENAI_API_KEY`).
 
@@ -42,7 +46,7 @@ Visit our [CHANGELOG](CHANGELOG.md) file to know more about our new features and
 
 ## Development and contribution
 
-Everyone is welcome to contribute!
+Everyone is welcome to contribute! See our [Contributing guide](CONTRIBUTING.md) for more details.
 
 ## Sponsors
 
