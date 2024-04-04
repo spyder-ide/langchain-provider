@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langchain-provider"
-version = "0.2.0"
+version = "0.1.0.dev0"
 description = "Langchain provider for Spyder"
 authors = [
     {name = "Spyder Project Contributors", email = "spyder.python@gmail.com"},
 ]
 license = {text = "MIT license"}
-dependencies = ["psutil", "qtawesome", "qtpy", "spyder>=6.0.0a3"]
+dependencies = ["langchain", "langchain-community", "openai", "qtawesome", "qtpy", "spyder>=6.0.0a3"]
 requires-python = ">= 3.8"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 7 - Inactive",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
@@ -27,14 +27,11 @@ classifiers = [
     "Topic :: Text Editors :: Integrated Development Environments (IDE)",
 ]
 
+[project.optional-dependencies]
+extras = ["pre-commit"]
+
 [project.urls]
-Homepage = "https://github.com/jsbautista/spyder-completion-provider"
+Homepage = "https://github.com/spyder-ide/langchain-provider"
 
 [project.entry-points."spyder.completions"]
 langchain = "langchain_provider.provider:LangchainProvider"
-
-#[tool.setuptools]
-#packages = ["langchain_provider"]
-#py-modules = ["__init__"]
-#license-files = ["LICENSE"]
-#include-package-data = false

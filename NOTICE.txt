@@ -157,33 +157,34 @@ Files covered:
 ===============================================================================
 
 
-Icons for Kite Completions Provider
+Icons for Langchain Provider
 ---------------------------------
 
 
-Copyright (c) 2019 Kite
+Copyright (c) 2023 Pictogrammers
 
 
-Author: Kite | https://kite.com
-Site: https://kite.com
-Source: https://kite.com
-License: Creative Commons Attribution 4.0 International
-https://creativecommons.org/licenses/by/4.0/
+Author: Austin Andrews | https://pictogrammers.com/contributor/Templarian/
+Site: https://pictogrammers.com
+Source: https://pictogrammers.com/library/mdi/icon/link-variant/
+License: Apache License Version 2.0.
+https://www.apache.org/licenses/LICENSE-2.0.txt
 
 
-Licensed under the terms of the Creative Commons Attribution International 4.0.
+Licensed under the terms of the Apache License Version 2.0.
 
 
-See below for the full text of the Creative Commons Attribution International 4.0 License.
+See below for the full text of the Apache License Version 2.0.
 
 
 Files covered:
 
-kite_provider/images/dark/kite.svg
-kite_provider/images/light/kite.svg
+langchain_provider/images/dark/langchain.svg
+langchain_provider/images/light/langchain.svg
 
 
 -------------------------------------------------------------------------------
+
 
 
 

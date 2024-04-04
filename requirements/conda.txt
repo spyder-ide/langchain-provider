@@ -1,6 +1,0 @@
-langchain
-psutil
-qtawesome
-qtpy
-setuptools
-spyder>=6.0
