@@ -14,6 +14,7 @@ dependencies = ["langchain", "langchain-community", "openai", "qtawesome", "qtpy
 requires-python = ">= 3.8"
 readme = "README.md"
 classifiers = [
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
