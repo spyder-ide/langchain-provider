@@ -7,7 +7,7 @@ In the commands below, replace `X.Y.Z` with the release version when needed.
 
 ## PyPI
 
-To release a new version of QtPy on PyPI:
+To release a new version of langchain-provider on PyPI:
 
 
 ### Prepare
