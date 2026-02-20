@@ -24,7 +24,10 @@ Or from PyPI something like:
 
     pip install langchain-provider
 
-Also, you need to have a OpenAI API key, which you can get from [here](https://platform.openai.com/signup) and then set it as a environment variable (`OPENAI_API_KEY`).
+Also, you need to set the environment variable `OPENAI_API_KEY`. In case
+you are actually using the OpenAI API you can get it from [here](https://platform.openai.com/signup)
+but for usage with for example local LLMs (via things like [LMStudio](https://lmstudio.ai))
+ you just need to set it with a corresponding valid value.
 
 ## Preview
 
@@ -32,7 +35,7 @@ Also, you need to have a OpenAI API key, which you can get from [here](https://p
 
 ## Configuration
 
-To configure the provider number of suggestions (1 - 10) or the model to use (`gpt-3.5-turbo`, or `gpt4`) you can click on the Langchain status bar and click the `Change provider parameters` menu entry:
+To configure the provider number of suggestions (1 - 10), the model to use and API URL you can click on the Langchain status bar and click the `Change provider parameters` menu entry:
 
 ![langchain provider config](https://raw.githubusercontent.com/spyder-ide/langchain-provider/master/langchain-provider-config.gif)
 

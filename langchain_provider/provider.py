@@ -30,11 +30,12 @@ class LangchainProvider(SpyderCompletionProvider):
     COMPLETION_PROVIDER_NAME = "langchain"
     DEFAULT_ORDER = 1
     SLOW = True
-    CONF_VERSION = "1.0.0"
+    CONF_VERSION = "2.0.0"
     CONF_DEFAULTS = [
         ("suggestions", 4),
         ("language", "Python"),
-        ("model_name", "gpt-3.5-turbo"),
+        ("model_name", "No model"),
+        ("api_url", "https://api.openai.com/v1"),
     ]
     TEMPLATE_PARAM = """You are a helpful assistant in completing following {0} code based
                   on the previous sentence.
@@ -56,6 +57,7 @@ class LangchainProvider(SpyderCompletionProvider):
         self.client = LangchainClient(
             None,
             model_name=self.get_conf("model_name"),
+            api_url=self.get_conf("api_url"),
             template=self.TEMPLATE_PARAM.format(
                 self.get_conf("language"), self.get_conf("suggestions")
             ),
@@ -128,6 +130,7 @@ class LangchainProvider(SpyderCompletionProvider):
                 return
         self.client.update_configuration(
             self.get_conf("model_name"),
+            self.get_conf("api_url"),
             self.TEMPLATE_PARAM.format(
                 self.get_conf("language"), self.get_conf("suggestions")
             ),

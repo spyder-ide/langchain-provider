@@ -13,7 +13,7 @@ import logging
 # Third party imports
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QComboBox,
+    QLineEdit,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
@@ -45,13 +45,17 @@ class LangchainConfigDialog(QDialog):
         self.suggestions_spinbox.setValue(provider.get_conf("suggestions"))
 
         model_label_text = _("Model name:")
-        self.model_combobox = QComboBox()
-        self.model_combobox.addItems(["gpt-3.5-turbo", "gpt-4"])
-        self.model_combobox.setCurrentText(provider.get_conf("model_name"))
+        self.model_lineedit = QLineEdit()
+        self.model_lineedit.setText(provider.get_conf("model_name"))
+
+        api_url_label_text = _("API URL:")
+        self.api_url_lineedit = QLineEdit()
+        self.api_url_lineedit.setText(provider.get_conf("api_url"))
 
         form_layout = QFormLayout()
         form_layout.addRow(suggestions_label_text, self.suggestions_spinbox)
-        form_layout.addRow(model_label_text, self.model_combobox)
+        form_layout.addRow(model_label_text, self.model_lineedit)
+        form_layout.addRow(api_url_label_text, self.api_url_lineedit)
 
         bbox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Vertical, self
@@ -70,6 +74,8 @@ class LangchainConfigDialog(QDialog):
         self.suggestions_spinbox.setFocus()
 
     def accept(self):
-        self._provider.set_conf("suggestions", self.suggestions_spinbox.value())
-        self._provider.set_conf("model_name", self.model_combobox.currentText())
-        super().accept()
+        if self.model_lineedit.text() and self.api_url_lineedit.text():
+            self._provider.set_conf("suggestions", self.suggestions_spinbox.value())
+            self._provider.set_conf("model_name", self.model_lineedit.text())
+            self._provider.set_conf("api_url", self.api_url_lineedit.text())
+            super().accept()

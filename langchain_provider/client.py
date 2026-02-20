@@ -11,8 +11,8 @@ import logging
 
 # Third party imports
 from langchain_community.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain.prompts.chat import (
+from langchain_classic.chains import LLMChain
+from langchain_classic.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
@@ -39,7 +39,7 @@ class LangchainClient(QObject):
     sig_status_response_ready = Signal((str,), (dict,))
     sig_onboarding_response_ready = Signal(str)
 
-    def __init__(self, parent, template, model_name, language="python"):
+    def __init__(self, parent, template, model_name, api_url, language="python"):
         QObject.__init__(self, parent)
         self.requests = {}
         self.language = language
@@ -55,6 +55,7 @@ class LangchainClient(QObject):
 
         self.template = template
         self.model_name = model_name
+        self.api_url = api_url
         self.chain = None
 
     def start(self):
@@ -70,6 +71,7 @@ class LangchainClient(QObject):
             llm = ChatOpenAI(
                 temperature=0,
                 model_name=self.model_name,
+                base_url=self.api_url,
             )
             chat_prompt = ChatPromptTemplate.from_messages(
                 [system_message_prompt, code_message_prompt]
@@ -97,9 +99,10 @@ class LangchainClient(QObject):
             self.thread.wait()
             self.thread_started = False
 
-    def update_configuration(self, model_name, template):
+    def update_configuration(self, model_name, api_url, template):
         self.stop()
         self.model_name = model_name
+        self.api_url = api_url
         self.template = template
         self.start()
 
