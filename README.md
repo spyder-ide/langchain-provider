@@ -7,10 +7,9 @@
 [![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/spyder/sponsors/badge.svg?color=blue)](#sponsors)
 
-----
+---
 
 # Overview
-
 
 ## Installation
 
@@ -26,8 +25,30 @@ Or from PyPI something like:
 
 Also, you need to set the environment variable `OPENAI_API_KEY`. In case
 you are actually using the OpenAI API you can get it from [here](https://platform.openai.com/signup)
-but for usage with for example local LLMs (via things like [LMStudio](https://lmstudio.ai))
- you just need to set it with a corresponding valid value.
+but for usage with, for example, local LLMs (via things like [LMStudio](https://lmstudio.ai))
+you will need to set it with a corresponding valid value.
+
+Depending on the API you are using and options to configure available, setting the
+following JSON schema for the model structured output could be useful:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for responses",
+  "type": "object",
+  "properties": {
+    "suggestions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "suggestions"
+  ]
+}
+```
 
 ## Preview
 
@@ -71,8 +92,7 @@ and the donations we have received from our users around the world through [Open
 
 [Spyder Github](https://github.com/spyder-ide/spyder)
 
-[Troubleshooting Guide and FAQ](
-https://github.com/spyder-ide/spyder/wiki/Troubleshooting-Guide-and-FAQ)
+[Troubleshooting Guide and FAQ](https://github.com/spyder-ide/spyder/wiki/Troubleshooting-Guide-and-FAQ)
 
 [Development Wiki](https://github.com/spyder-ide/spyder/wiki/Dev:-Index)
 

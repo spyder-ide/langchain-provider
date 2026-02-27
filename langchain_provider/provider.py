@@ -36,17 +36,23 @@ class LangchainProvider(SpyderCompletionProvider):
         ("language", "Python"),
         ("model_name", "No model"),
         ("api_url", "https://api.openai.com/v1"),
+        (
+            "template",
+            """You are a helpful assistant in completing following {language} code based
+on the previous sentence.
+
+You always give {num_suggestions} suggestions.
+
+Example : a=3 b=4 print
+AI : "suggestions": ["print(a)", "print(b)", "print(a+b)"]
+Example : a=3 b=4 c
+AI : "suggestions": ["c=a+b", "c=a-b", "c=5"]
+Format the output as JSON with the following key:
+    suggestions
+
+""",
+        ),
     ]
-    TEMPLATE_PARAM = """You are a helpful assistant in completing following {0} code based
-                  on the previous sentence.
-                  You always complete the code in same line and give {1} suggestions.
-                  Example : a=3 b=4 print
-                  AI : "suggestions": ["print(a)", "print(b)", "print(a+b)"]
-                  Example : a=3 b=4 c
-                  AI : "suggestions": ["c=a+b", "c=a-b", "c=5"]
-                  Format the output as JSON with the following key:
-                      suggestions
-                  """
 
     def __init__(self, parent, config):
         super().__init__(parent, config)
@@ -58,8 +64,9 @@ class LangchainProvider(SpyderCompletionProvider):
             None,
             model_name=self.get_conf("model_name"),
             api_url=self.get_conf("api_url"),
-            template=self.TEMPLATE_PARAM.format(
-                self.get_conf("language"), self.get_conf("suggestions")
+            template=self.get_conf("template").format(
+                language=self.get_conf("language"),
+                num_suggestions=self.get_conf("suggestions"),
             ),
         )
 
@@ -131,8 +138,9 @@ class LangchainProvider(SpyderCompletionProvider):
         self.client.update_configuration(
             self.get_conf("model_name"),
             self.get_conf("api_url"),
-            self.TEMPLATE_PARAM.format(
-                self.get_conf("language"), self.get_conf("suggestions")
+            self.get_conf("template").format(
+                language=self.get_conf("language"),
+                num_suggestions=self.get_conf("suggestions"),
             ),
         )
 

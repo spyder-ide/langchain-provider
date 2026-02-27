@@ -13,12 +13,13 @@ import logging
 # Third party imports
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QLineEdit,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
-    QSpinBox,
     QHBoxLayout,
+    QLineEdit,
+    QSpinBox,
+    QTextEdit,
     QVBoxLayout,
 )
 
@@ -31,9 +32,9 @@ logger = logging.getLogger(__name__)
 class LangchainConfigDialog(QDialog):
     def __init__(self, provider, parent=None):
         super().__init__(parent=parent)
-
         self._provider = provider
 
+        self.setFixedSize(600, 400)
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setWindowTitle(_("Langchain provider configuration"))
         self.setModal(True)
@@ -52,10 +53,16 @@ class LangchainConfigDialog(QDialog):
         self.api_url_lineedit = QLineEdit()
         self.api_url_lineedit.setText(provider.get_conf("api_url"))
 
+        template_label_text = _("System prompt:")
+        self.template_textedit = QTextEdit()
+        self.template_textedit.setPlainText(provider.get_conf("template"))
+
         form_layout = QFormLayout()
+        form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         form_layout.addRow(suggestions_label_text, self.suggestions_spinbox)
         form_layout.addRow(model_label_text, self.model_lineedit)
         form_layout.addRow(api_url_label_text, self.api_url_lineedit)
+        form_layout.addRow(template_label_text, self.template_textedit)
 
         bbox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Vertical, self
@@ -78,4 +85,5 @@ class LangchainConfigDialog(QDialog):
             self._provider.set_conf("suggestions", self.suggestions_spinbox.value())
             self._provider.set_conf("model_name", self.model_lineedit.text())
             self._provider.set_conf("api_url", self.api_url_lineedit.text())
+            self._provider.set_conf("template", self.template_textedit.toPlainText())
             super().accept()
