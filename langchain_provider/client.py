@@ -149,10 +149,11 @@ class LangchainClient(QObject):
             completions = response["suggestions"]
             if completions is not None:
                 for i, completion in enumerate(completions):
+                    completion_text = completion.replace("/", "\\/")
                     entry = {
                         "kind": CompletionItemKind.TEXT,
                         "label": completion,
-                        "insertText": completion,
+                        "insertText": completion_text,
                         "filterText": "",
                         # Use the returned ordering
                         "sortText": (0, i),
