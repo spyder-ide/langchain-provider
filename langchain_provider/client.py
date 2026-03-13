@@ -18,6 +18,7 @@ from langchain_classic.prompts.chat import (
     HumanMessagePromptTemplate,
 )
 from qtpy.QtCore import QObject, QThread, Signal, QMutex, Slot
+from qtpy.QtGui import QTextCursor
 
 # Spyder imports
 from spyder.plugins.completion.api import CompletionRequestTypes, CompletionItemKind
@@ -131,6 +132,21 @@ class LangchainClient(QObject):
         response = self.run_chain(params=params)
         return response
 
+    def handle_completion(self, msg, completion):
+        codeeditor = msg["response_instance"]
+        cursor = codeeditor.textCursor()
+        current_pos = cursor.position()
+        cursor.movePosition(QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+        current_line = cursor.selectedText()
+        cursor.setPosition(current_pos)
+        codeeditor.setTextCursor(cursor)
+        current_word = msg["current_word"]
+        if current_word:
+            current_line = current_line.removesuffix(current_word)
+        completion_text = completion.removeprefix(current_line).replace("/", "\\/")
+
+        return completion_text
+
     @Slot(dict)
     def handle_msg(self, message):
         """Handle one message"""
@@ -149,7 +165,7 @@ class LangchainClient(QObject):
             completions = response["suggestions"]
             if completions is not None:
                 for i, completion in enumerate(completions):
-                    completion_text = completion.replace("/", "\\/")
+                    completion_text = self.handle_completion(msg, completion)
                     entry = {
                         "kind": CompletionItemKind.TEXT,
                         "label": completion,
