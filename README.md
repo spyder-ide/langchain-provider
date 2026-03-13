@@ -4,7 +4,7 @@
 
 [![Project License](https://img.shields.io/github/license/spyder-ide/langchain-provider)](./LICENSE)
 [![Join the chat at https://gitter.im/spyder-ide/public](https://badges.gitter.im/spyder-ide/spyder.svg)](https://gitter.im/spyder-ide/public)
-[![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
+[![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#sponsors)
 [![OpenCollective Sponsors](https://opencollective.com/spyder/sponsors/badge.svg?color=blue)](#sponsors)
 
 ---
@@ -13,7 +13,7 @@
 
 ## Installation
 
-To use this completions provider you will need to install Spyder 6 (at least 6.0.0a3)
+To use this completions provider you will need to install Spyder 6 (at least 6.1.0)
 
 To install the provider package from source, you can use `pip` with something like:
 
@@ -28,7 +28,7 @@ you are actually using the OpenAI API you can get it from [here](https://platfor
 but for usage with, for example, local LLMs (via things like [LMStudio](https://lmstudio.ai))
 you will need to set it with a corresponding valid value.
 
-Depending on the API you are using and options to configure available, setting the
+Depending on the API you are using and options to configure available, defining the
 following JSON schema for the model structured output could be useful:
 
 ```json
@@ -56,7 +56,7 @@ following JSON schema for the model structured output could be useful:
 
 ## Configuration
 
-To configure the provider number of suggestions (1 - 10), the model to use and API URL you can click on the Langchain status bar and click the `Change provider parameters` menu entry:
+To configure the provider number of suggestions (1 - 10), the model to use and API URL you can click on the Langchain status bar and then the `Change provider parameters` menu entry:
 
 ![langchain provider config](https://raw.githubusercontent.com/spyder-ide/langchain-provider/master/langchain-provider-config.gif)
 
