@@ -6,18 +6,19 @@
 """Langchain completions HTTP client."""
 
 # Standard library imports
-import json
 import logging
 
 # Third party imports
 from langchain_community.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain.prompts.chat import (
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
+from pydantic import BaseModel, Field
 from qtpy.QtCore import QObject, QThread, Signal, QMutex, Slot
+from qtpy.QtGui import QTextCursor
 
 # Spyder imports
 from spyder.plugins.completion.api import CompletionRequestTypes, CompletionItemKind
@@ -30,6 +31,12 @@ LANG_COMPLETION = "Langchain"
 LANG_ICON_SCALE = 1
 
 
+class Suggestions(BaseModel):
+    """Completion suggestions list."""
+
+    suggestions: list[str] = Field(description="List of completion suggestions strings")
+
+
 class LangchainClient(QObject):
     sig_response_ready = Signal(int, dict)
     sig_client_started = Signal()
@@ -39,7 +46,7 @@ class LangchainClient(QObject):
     sig_status_response_ready = Signal((str,), (dict,))
     sig_onboarding_response_ready = Signal(str)
 
-    def __init__(self, parent, template, model_name, language="python"):
+    def __init__(self, parent, template, model_name, api_url, language="python"):
         QObject.__init__(self, parent)
         self.requests = {}
         self.language = language
@@ -55,6 +62,7 @@ class LangchainClient(QObject):
 
         self.template = template
         self.model_name = model_name
+        self.api_url = api_url
         self.chain = None
 
     def start(self):
@@ -70,14 +78,12 @@ class LangchainClient(QObject):
             llm = ChatOpenAI(
                 temperature=0,
                 model_name=self.model_name,
+                base_url=self.api_url,
             )
             chat_prompt = ChatPromptTemplate.from_messages(
                 [system_message_prompt, code_message_prompt]
             )
-            chain = LLMChain(
-                llm=llm,
-                prompt=chat_prompt,
-            )
+            chain = chat_prompt | llm | JsonOutputParser(pydantic_object=Suggestions)
             self.chain = chain
             self.sig_client_started.emit()
         except ValueError as e:
@@ -97,9 +103,10 @@ class LangchainClient(QObject):
             self.thread.wait()
             self.thread_started = False
 
-    def update_configuration(self, model_name, template):
+    def update_configuration(self, model_name, api_url, template):
         self.stop()
         self.model_name = model_name
+        self.api_url = api_url
         self.template = template
         self.start()
 
@@ -110,23 +117,27 @@ class LangchainClient(QObject):
             langchain_status = self.model_name
             self.sig_status_response_ready[str].emit(langchain_status)
 
-    def run_chain(self, params=None):
-        response = None
-        try:
-            prevResponse = self.chain.invoke(params)["text"]
-            if prevResponse[0] == '"':
-                response = json.loads("{" + prevResponse + "}")
-            else:
-                response = json.loads(prevResponse)
-            return response
-        except Exception:
+    def request_completions(self, params):
+        response = self.chain.invoke(params)
+        if not isinstance(response, dict) or "suggestions" not in response:
+            response = {"suggestions": []}
             self.sig_client_error.emit("No suggestions available")
-            return {"suggestions": []}
-
-    def send(self, params):
-        response = None
-        response = self.run_chain(params=params)
         return response
+
+    def handle_completion_text(self, msg, completion):
+        codeeditor = msg["response_instance"]
+        cursor = codeeditor.textCursor()
+        current_pos = cursor.position()
+        cursor.movePosition(QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+        current_line = cursor.selectedText()
+        cursor.setPosition(current_pos)
+        codeeditor.setTextCursor(cursor)
+        current_word = msg["current_word"]
+        if current_word:
+            current_line = current_line.removesuffix(current_word)
+        completion_text = completion.removeprefix(current_line).replace("/", "\\/")
+
+        return completion_text
 
     @Slot(dict)
     def handle_msg(self, message):
@@ -138,24 +149,24 @@ class LangchainClient(QObject):
         elif msg_type == CompletionRequestTypes.DOCUMENT_DID_CHANGE:
             self.opened_files[msg["file"]] = msg["text"]
         elif msg_type == CompletionRequestTypes.DOCUMENT_COMPLETION:
-            response = self.send(self.opened_files[msg["file"]])
+            response = self.request_completions(self.opened_files[msg["file"]])
             logger.debug(response)
             if response is None:
                 return {"params": []}
             spyder_completions = []
             completions = response["suggestions"]
-            if completions is not None:
-                for i, completion in enumerate(completions):
-                    entry = {
-                        "kind": CompletionItemKind.TEXT,
-                        "label": completion,
-                        "insertText": completion,
-                        "filterText": "",
-                        # Use the returned ordering
-                        "sortText": (0, i),
-                        "documentation": completion,
-                        "provider": LANG_COMPLETION,
-                        "icon": ("langchain", LANG_ICON_SCALE),
-                    }
-                    spyder_completions.append(entry)
+            for i, completion in enumerate(completions):
+                completion_text = self.handle_completion_text(msg, completion)
+                entry = {
+                    "kind": CompletionItemKind.TEXT,
+                    "label": completion,
+                    "insertText": completion_text,
+                    "filterText": "",
+                    # Use the returned ordering
+                    "sortText": (0, i),
+                    "documentation": completion,
+                    "provider": LANG_COMPLETION,
+                    "icon": ("langchain", LANG_ICON_SCALE),
+                }
+                spyder_completions.append(entry)
             self.sig_response_ready.emit(_id, {"params": spyder_completions})
