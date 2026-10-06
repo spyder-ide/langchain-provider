@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright © Spyder Project Contributors
 # Licensed under the terms of the MIT License
 
@@ -13,16 +11,15 @@ from langchain_community.chat_models import ChatOpenAI
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import (
     ChatPromptTemplate,
-    SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
 )
 from pydantic import BaseModel, Field
-from qtpy.QtCore import QObject, QThread, Signal, QMutex, Slot
+from qtpy.QtCore import QMutex, QObject, QThread, Signal, Slot
 from qtpy.QtGui import QTextCursor
 
 # Spyder imports
-from spyder.plugins.completion.api import CompletionRequestTypes, CompletionItemKind
-
+from spyder.plugins.completion.api import CompletionItemKind, CompletionRequestTypes
 
 logger = logging.getLogger(__name__)
 
@@ -143,10 +140,11 @@ class LangchainClient(QObject):
     def handle_msg(self, message):
         """Handle one message"""
         msg_type, _id, file, msg = [message[k] for k in ("type", "id", "file", "msg")]
-        logger.debug("Perform request {0} with id {1}".format(msg_type, _id))
-        if msg_type == CompletionRequestTypes.DOCUMENT_DID_OPEN:
-            self.opened_files[msg["file"]] = msg["text"]
-        elif msg_type == CompletionRequestTypes.DOCUMENT_DID_CHANGE:
+        logger.debug(f"Perform request {msg_type} with id {_id}")
+        if (
+            msg_type == CompletionRequestTypes.DOCUMENT_DID_OPEN
+            or msg_type == CompletionRequestTypes.DOCUMENT_DID_CHANGE
+        ):
             self.opened_files[msg["file"]] = msg["text"]
         elif msg_type == CompletionRequestTypes.DOCUMENT_COMPLETION:
             response = self.request_completions(self.opened_files[msg["file"]])

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright © Spyder Project Contributors
 # Licensed under the terms of the MIT License
 
@@ -12,16 +10,15 @@ import os
 # Qt imports
 from qtpy.QtCore import Slot
 
-# Local imports
-from langchain_provider.client import LangchainClient
-from langchain_provider.widgets import LangchainStatusWidget
-
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
-from spyder.config.base import running_under_pytest, get_module_data_path
+from spyder.config.base import get_module_data_path, running_under_pytest
 from spyder.plugins.completion.api import SpyderCompletionProvider
 from spyder.utils.image_path_manager import IMAGE_PATH_MANAGER
 
+# Local imports
+from langchain_provider.client import LangchainClient
+from langchain_provider.widgets import LangchainStatusWidget
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright © Spyder Project Contributors
 # Licensed under the terms of the MIT License
@@ -16,9 +15,9 @@ from qtpy.QtCore import QPoint
 
 # Spyder imports
 from spyder.api.translations import _
+from spyder.api.widgets.menus import SpyderMenu
 from spyder.api.widgets.status import StatusBarWidget
 from spyder.utils.icon_manager import ima
-from spyder.api.widgets.menus import SpyderMenu
 from spyder.utils.qthelpers import add_actions, create_action
 
 # Local imports
@@ -58,8 +57,8 @@ class LangchainStatusWidget(StatusBarWidget):
             self.tooltip = self.BASE_TOOLTIP
         self.update_tooltip()
         self.setVisible(langchain_enabled)
-        value = "Langchain: {0}".format(value)
-        super(LangchainStatusWidget, self).set_value(value)
+        value = f"Langchain: {value}"
+        super().set_value(value)
 
     def get_tooltip(self):
         """Reimplementation to get a dynamic tooltip."""
